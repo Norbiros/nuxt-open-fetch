@@ -46,6 +46,9 @@ pnpm add -D nuxt-open-fetch
 # Using yarn
 yarn add --dev nuxt-open-fetch
 
+# Using bun
+bun add -D nuxt-open-fetch
+
 # Using npm
 npm install --save-dev nuxt-open-fetch
 ```
