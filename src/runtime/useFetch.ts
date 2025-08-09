@@ -68,10 +68,7 @@ export function createUseOpenFetch<
     // The autokey in Nuxt is a bit buggy in our use case, so we create our own.
     const key = options.key ?? createAutoKey(client.toString(), url, options)
     const opts = { $fetch: fetch, key, ...options }
-    if (opts.header) {
-      opts.headers = opts.header
-      delete opts.header
-    }
+
     return useFetch(url, lazy ? { ...opts, lazy } : { ...opts })
   }
 }

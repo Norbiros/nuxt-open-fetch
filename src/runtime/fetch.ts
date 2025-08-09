@@ -110,9 +110,14 @@ export function createOpenFetch<Paths>(
           ...baseOpts,
         }
 
-    const opts: FetchOptions & { path?: Record<string, string> } = {
+    const opts: FetchOptions & { path?: Record<string, string>, header: HeadersInit | undefined } = {
       ...baseOpts,
       ...getOpenFetchHooks(hooks, baseOpts, hookIdentifier as OpenFetchClientName),
+    }
+
+    if (opts.header) {
+      opts.headers = opts.header
+      delete opts.header
     }
 
     const $fetch = getFetch(url, opts, localFetch)
