@@ -21,8 +21,8 @@ useHead({
 useSeoMeta({
   titleTemplate: `%s - ${seo?.siteName}`,
   ogSiteName: seo?.siteName,
-  ogImage: 'https://nuxt-open-fetch.vercel.app/cover.png',
-  twitterImage: 'https://nuxt-open-fetch.vercel.app/cover.png',
+  ogImage: 'https://nuxt-open-fetch.norbiros.dev/cover.png',
+  twitterImage: 'https://nuxt-open-fetch.norbiros.dev/cover.png',
   twitterCard: 'summary_large_image',
 })
 

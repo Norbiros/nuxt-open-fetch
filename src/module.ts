@@ -216,16 +216,20 @@ ${schemas.length ? `export type OpenFetchClientName = ${schemas.map(({ name }) =
 ${schemas.map(({ name, fetchName }) => `
 /**
  * Fetch data from an OpenAPI endpoint with an SSR-friendly composable.
- * See {@link https://nuxt-open-fetch.vercel.app/composables/useclient}
- * @param string The OpenAPI path to fetch
- * @param opts extends useFetch, $fetch options and useAsyncData options
+ *
+ * @param url - The OpenAPI path to fetch
+ * @param opts - Options extending \`useFetch\`, \`$fetch\`, and \`useAsyncData\`.
+ *
+ * @see https://nuxt-open-fetch.norbiros.dev/composables/useclient
  */
 export const ${fetchName.composable} = createUseOpenFetch<${pascalCase(name)}Paths>('${name}')
 /**
- * Fetch data from an OpenAPI endpoint with an SSR-friendly composable.
- * See {@link https://nuxt-open-fetch.vercel.app/composables/uselazyclient}
- * @param string The OpenAPI path to fetch
- * @param opts extends useFetch, $fetch options and useAsyncData options
+ * Lazily fetch data from an OpenAPI endpoint with an SSR-friendly composable.
+ *
+ * @param url - The OpenAPI path to fetch
+ * @param opts - Options extending \`useFetch\`, \`$fetch\`, and \`useAsyncData\`.
+ *
+ * @see https://nuxt-open-fetch.norbiros.dev/composables/uselazyclient
  */
 export const ${fetchName.lazyComposable} = createUseOpenFetch<${pascalCase(name)}Paths>('${name}', true)
 

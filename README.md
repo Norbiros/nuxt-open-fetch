@@ -6,7 +6,7 @@ Find and replace all on all files (CMD+SHIFT+F):
 - Package name: my-module
 - Description: My new Nuxt module
 -->
-[![Nuxt Open Fetch](./docs/public/cover.png)](https://nuxt-open-fetch.vercel.app/)
+[![Nuxt Open Fetch](./docs/public/cover.png)](https://nuxt-open-fetch.norbiros.dev/)
 
 # Nuxt Open Fetch
 
@@ -22,7 +22,7 @@ In other words - `$fetch` and `useFetch` on steroids. Uses awesome [openapi-type
 > All ideas/suggestions are welcome! :)
 
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
-- [📖 &nbsp;Read the documentation](https://nuxt-open-fetch.vercel.app/)
+- [📖 &nbsp;Read the documentation](https://nuxt-open-fetch.norbiros.dev/)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
 

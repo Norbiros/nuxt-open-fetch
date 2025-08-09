@@ -18,7 +18,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   site: {
-    url: 'https://nuxt-open-fetch.vercel.app',
+    url: 'https://nuxt-open-fetch.norbiros.dev',
   },
 
   colorMode: {
