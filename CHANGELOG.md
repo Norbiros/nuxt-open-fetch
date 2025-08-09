@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v0.13.2
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.1...v0.13.2)
+
+### 🚀 Enhancements
+
+- Support `.yml` file extension ([#102](https://github.com/enkot/nuxt-open-fetch/pull/102))
+
+### 🩹 Fixes
+
+- **docs:** Correct how to create custom client with hooks ([72323ae](https://github.com/enkot/nuxt-open-fetch/commit/72323ae))
+- Properly handle `header` property in `$fetch` composable ([#79](https://github.com/enkot/nuxt-open-fetch/pull/79))
+
+### 📖 Documentation
+
+- Update options table in configuration docs ([d6cca1b](https://github.com/enkot/nuxt-open-fetch/commit/d6cca1b))
+
+### 🏡 Chore
+
+- Update the docs website url ([e70f7eb](https://github.com/enkot/nuxt-open-fetch/commit/e70f7eb))
+
+### ❤️ Contributors
+
+- Norbiros ([@Norbiros](https://github.com/Norbiros))
+
 ## v0.13.1
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.12.2...v0.13.1)
