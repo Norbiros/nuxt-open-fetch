@@ -59,7 +59,7 @@ export type OpenFetchClient<Paths> = <
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
   LowercasedMethod extends (Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never),
   DefaultMethod extends ('get' extends LowercasedMethod ? 'get' : LowercasedMethod),
-  Media extends MediaType = ExtractMediaType<Methods[DefaultMethod]>,
+  Media extends ExtractMediaType<Methods[DefaultMethod]>,
   ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
 >(
   url: ReqT,
