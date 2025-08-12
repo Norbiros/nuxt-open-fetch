@@ -6,14 +6,16 @@ import type { FetchContext, FetchError, FetchHooks, FetchOptions } from 'ofetch'
 import type {
   ErrorResponse,
   MediaType,
+  OkStatus,
   OperationRequestBodyContent,
+  ResponseContent,
   ResponseObjectMap,
   SuccessResponse,
 } from 'openapi-typescript-helpers'
 
 type Hooks = Hookable<GlobalFetchHooks & ClientFetchHooks> | null
 
-export type FetchResponseData<T extends Record<string | number, any>> = SuccessResponse<ResponseObjectMap<T>, MediaType>
+export type FetchResponseData<T extends Record<string | number, any>, Media extends MediaType = MediaType> = SuccessResponse<ResponseObjectMap<T>, Media>
 export type FetchResponseError<T extends Record<string | number, any>> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
 
 export type MethodOption<M, P> = 'get' extends keyof P ? { method?: M } : { method: M }
@@ -26,29 +28,42 @@ export type RequestBodyOption<T> = OperationRequestBodyContent<T> extends never
     ? { body?: OperationRequestBodyContent<T> }
     : { body: OperationRequestBodyContent<T> }
 
+export interface AcceptMediaTypeOption<M> {
+  accept?: M | M[]
+}
+
 export type FilterMethods<T> = { [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined ? never : K]: T[K] }
+
+export type ExtractMediaType<T> = ResponseObjectMap<T> extends Record<string | number, any>
+  ? { [S in OkStatus]: Extract<keyof ResponseContent<ResponseObjectMap<T>[S]>, MediaType> }[OkStatus]
+  : never
 
 type OpenFetchOptions<
   Method,
   LowercasedMethod,
   Params,
-  Operation = 'get' extends LowercasedMethod ? ('get' extends keyof Params ? Params['get'] : never) : LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never,
+  Media,
+  Operation = 'get' extends LowercasedMethod
+    ? ('get' extends keyof Params ? Params['get'] : never)
+    : (LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never),
 >
 = MethodOption<Method, Params>
   & ParamsOption<Operation>
   & RequestBodyOption<Operation>
+  & AcceptMediaTypeOption<Media>
   & Omit<FetchOptions, 'query' | 'body' | 'method'>
 
 export type OpenFetchClient<Paths> = <
   ReqT extends Extract<keyof Paths, string>,
   Methods extends FilterMethods<Paths[ReqT]>,
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
-  LowercasedMethod extends Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never,
-  DefaultMethod extends 'get' extends LowercasedMethod ? 'get' : LowercasedMethod,
-  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod]> : never,
+  LowercasedMethod extends (Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never),
+  DefaultMethod extends ('get' extends LowercasedMethod ? 'get' : LowercasedMethod),
+  Media extends MediaType = ExtractMediaType<Methods[DefaultMethod]>,
+  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
 >(
   url: ReqT,
-  options?: OpenFetchOptions<Method, LowercasedMethod, Methods>
+  options?: OpenFetchOptions<Method, LowercasedMethod, Methods, Media>
 ) => Promise<ResT>
 
 // More flexible way to rewrite the request path,
@@ -110,7 +125,11 @@ export function createOpenFetch<Paths>(
           ...baseOpts,
         }
 
-    const opts: FetchOptions & { path?: Record<string, string>, header: HeadersInit | undefined } = {
+    const opts: FetchOptions & {
+      path?: Record<string, string>
+      accept?: MediaType | MediaType[]
+      header: HeadersInit | undefined
+    } = {
       ...baseOpts,
       ...getOpenFetchHooks(hooks, baseOpts, hookIdentifier as OpenFetchClientName),
     }
@@ -118,6 +137,17 @@ export function createOpenFetch<Paths>(
     if (opts.header) {
       opts.headers = opts.header
       delete opts.header
+    }
+
+    opts.headers = new Headers(opts.headers)
+    if (opts.accept) {
+      opts.headers.set(
+        'Accept',
+        Array.isArray(opts.accept)
+          ? opts.accept.join(', ')
+          : opts.accept,
+      )
+      delete opts.accept
     }
 
     const $fetch = getFetch(url, opts, localFetch)

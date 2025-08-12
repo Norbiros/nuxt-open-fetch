@@ -19,6 +19,27 @@ interface ReturnData {
   status?: 'available' | 'pending' | 'sold'
 }
 
+interface ReturnDataV2 {
+  id?: number
+  name: string
+  breed?: string
+  age?: number
+  category?: {
+    id?: number
+    name?: string
+  } | undefined
+  photoUrls: string[]
+  tags?: {
+    id?: number
+    name?: string
+  }[]
+  status?: 'available' | 'pending' | 'sold'
+  owner?: {
+    name?: string
+    email?: string
+  }
+}
+
 describe('$[client]', async () => {
   const $pets = createOpenFetch<paths>({})
 
@@ -51,6 +72,35 @@ describe('$[client]', async () => {
   it('has correct return type', () => async () => {
     const data = await $pets('/pet/{petId}')
     expectTypeOf(data).toMatchTypeOf<ReturnData>()
+  })
+
+  it('returns correct type based on accept header', () => async () => {
+    const jsonData = await $pets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+    })
+    expectTypeOf(jsonData).toEqualTypeOf<ReturnData>()
+
+    const v1Data = await $pets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v1+json',
+    })
+    expectTypeOf(v1Data).toEqualTypeOf<ReturnData>()
+    expectTypeOf(v1Data).not.toEqualTypeOf<ReturnDataV2>()
+
+    const v2Data = await $pets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v2+json',
+    })
+    expectTypeOf(v2Data).toEqualTypeOf<ReturnDataV2>()
+  })
+
+  it('supports mixed media type arrays with correct return type', () => async () => {
+    const data = await $pets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: ['application/json', 'application/vnd.petstore.v2+json'],
+    })
+    expectTypeOf(data).toEqualTypeOf<ReturnData | ReturnDataV2>()
   })
 })
 
@@ -160,5 +210,39 @@ describe('use[Client]', async () => {
     expectTypeOf(data).toMatchTypeOf<Ref<{
       name: string
     } | undefined>>()
+  })
+
+  it('returns correct type based on accept header', () => () => {
+    const { data: jsonData } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+      immediate: false,
+    })
+    expectTypeOf(jsonData).toEqualTypeOf<Ref<ReturnData | undefined>>()
+
+    const { data: v1Data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v1+json',
+      immediate: false,
+    })
+    expectTypeOf(v1Data).toEqualTypeOf<Ref<ReturnData | undefined>>()
+    expectTypeOf(v1Data).not.toEqualTypeOf<Ref<ReturnDataV2 | undefined>>()
+
+    const { data: v2Data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v2+json',
+      immediate: false,
+    })
+    expectTypeOf(v2Data).toEqualTypeOf<Ref<ReturnDataV2 | undefined>>()
+  })
+
+  it('supports mixed media type arrays with correct return type', () => () => {
+    const { data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: ['application/json', 'application/vnd.petstore.v2+json'],
+      immediate: false,
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<ReturnData | ReturnDataV2 | undefined>>()
   })
 })
