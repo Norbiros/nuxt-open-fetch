@@ -1,8 +1,17 @@
 import type { OpenFetchClientName } from '#build/open-fetch'
 import type { AsyncData, UseFetchOptions } from 'nuxt/app'
 import type { $Fetch } from 'ofetch'
+import type { MediaType } from 'openapi-typescript-helpers'
 import type { Ref } from 'vue'
-import type { FetchResponseData, FetchResponseError, FilterMethods, ParamsOption, RequestBodyOption } from './fetch'
+import type {
+  AcceptMediaTypeOption,
+  ExtractMediaType,
+  FetchResponseData,
+  FetchResponseError,
+  FilterMethods,
+  ParamsOption,
+  RequestBodyOption,
+} from './fetch'
 import { useFetch, useNuxtApp } from 'nuxt/app'
 import { digest } from 'ohash'
 import { toValue } from 'vue'
@@ -19,6 +28,7 @@ type UseOpenFetchOptions<
   Method,
   LowercasedMethod,
   Params,
+  Media,
   ResT,
   DataT = ResT,
   PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
@@ -28,6 +38,7 @@ type UseOpenFetchOptions<
 = ComputedMethodOption<Method, Params>
   & ComputedOptions<ParamsOption<Operation>>
   & ComputedOptions<RequestBodyOption<Operation>>
+  & ComputedOptions<AcceptMediaTypeOption<Media>>
   & Omit<UseFetchOptions<ResT, DataT, PickKeys, DefaultT>, 'query' | 'body' | 'method'>
 
 export type UseOpenFetchClient<Paths, Lazy> = <
@@ -36,7 +47,8 @@ export type UseOpenFetchClient<Paths, Lazy> = <
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
   LowercasedMethod extends Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never,
   DefaultMethod extends 'get' extends LowercasedMethod ? 'get' : LowercasedMethod,
-  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod]> : never,
+  Media extends MediaType = ExtractMediaType<Methods[DefaultMethod]>,
+  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
   ErrorT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseError<Methods[DefaultMethod]> : never,
   DataT = ResT,
   PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
@@ -44,8 +56,8 @@ export type UseOpenFetchClient<Paths, Lazy> = <
 >(
   url: ReqT | (() => ReqT),
   options?: Lazy extends true
-    ? Omit<UseOpenFetchOptions<Method, LowercasedMethod, Methods, ResT, DataT, PickKeys, DefaultT>, 'lazy'>
-    : UseOpenFetchOptions<Method, LowercasedMethod, Methods, ResT, DataT, PickKeys, DefaultT>
+    ? Omit<UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>, 'lazy'>
+    : UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>
 ) => AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
 
 export function createUseOpenFetch<
