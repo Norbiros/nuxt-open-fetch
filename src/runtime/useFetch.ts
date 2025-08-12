@@ -1,7 +1,6 @@
 import type { OpenFetchClientName } from '#build/open-fetch'
 import type { AsyncData, UseFetchOptions } from 'nuxt/app'
 import type { $Fetch } from 'ofetch'
-import type { MediaType } from 'openapi-typescript-helpers'
 import type { Ref } from 'vue'
 import type {
   AcceptMediaTypeOption,
@@ -47,7 +46,7 @@ export type UseOpenFetchClient<Paths, Lazy> = <
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
   LowercasedMethod extends Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never,
   DefaultMethod extends 'get' extends LowercasedMethod ? 'get' : LowercasedMethod,
-  Media extends MediaType = ExtractMediaType<Methods[DefaultMethod]>,
+  Media extends ExtractMediaType<Methods[DefaultMethod]>,
   ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
   ErrorT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseError<Methods[DefaultMethod]> : never,
   DataT = ResT,
