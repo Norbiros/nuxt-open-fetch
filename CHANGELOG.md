@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v0.13.3
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.2...v0.13.3)
+
+### 🚀 Enhancements
+
+- Allow defining the Accept header to filter return type ([60b5d10](https://github.com/enkot/nuxt-open-fetch/commit/60b5d10))
+
+### 🩹 Fixes
+
+- Restrict acceptable media types in accept to declared ones ([28edbb6](https://github.com/enkot/nuxt-open-fetch/commit/28edbb6))
+
+### 📖 Documentation
+
+- Add bun installation instructions ([e668e4f](https://github.com/enkot/nuxt-open-fetch/commit/e668e4f))
+- Add accept parameter in individual function documentation ([20ee778](https://github.com/enkot/nuxt-open-fetch/commit/20ee778))
+- Properly mention how to use the runtime config ([#107](https://github.com/enkot/nuxt-open-fetch/pull/107))
+
+### 🏡 Chore
+
+- Use github alerts in `README.md` ([3b182a1](https://github.com/enkot/nuxt-open-fetch/commit/3b182a1))
+
+### ❤️ Contributors
+
+- Norbiros ([@Norbiros](https://github.com/Norbiros))
+- Loïc Herman <loic@loicherman.ch>
+
 ## v0.13.2
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.1...v0.13.2)
