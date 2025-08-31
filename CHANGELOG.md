@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.13.4
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.3...v0.13.4)
+
+### 🔥 Performance
+
+- Cache generated `openapiTS` type templates ([0a962d5](https://github.com/enkot/nuxt-open-fetch/commit/0a962d5))
+
+### ❤️ Contributors
+
+- Norbiros ([@Norbiros](https://github.com/Norbiros))
+
 ## v0.13.3
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.2...v0.13.3)
