@@ -2,6 +2,7 @@ import type { Readable } from 'node:stream'
 import type { FetchOptions } from 'ofetch'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import { existsSync } from 'node:fs'
+import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import {
   addImportsSources,
   addPlugin,
@@ -12,10 +13,11 @@ import {
   createResolver,
   defineNuxtModule,
 } from '@nuxt/kit'
+import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
 import { join } from 'pathe'
-import { kebabCase, pascalCase } from 'scule'
 
+import { kebabCase, pascalCase } from 'scule'
 import { name, version } from '../package.json'
 
 type OpenAPI3Schema = string | URL | OpenAPI3 | Readable
@@ -130,10 +132,15 @@ export default defineNuxtModule<ModuleOptions>({
     schemas.forEach(({ name, schema, openAPITS }) => {
       addTemplate({
         filename: `types/${moduleName}/schemas/${kebabCase(name)}.ts`,
-        getContents: async () => {
-          const ast = await openapiTS(schema, openAPITS)
-          return astToString(ast)
-        },
+        getContents: () =>
+          addCachedSchemaTemplate({
+            name,
+            schema,
+            openAPITS,
+            moduleName,
+            nuxtBuildDir: nuxt.options.buildDir || '.nuxt',
+            resolvePath: resolve,
+          }),
         write: true,
       })
     })
@@ -318,4 +325,60 @@ function isValidUrl(url: string) {
   catch {
     return false
   }
+}
+
+interface SchemaOptions {
+  name: string
+  schema: string | URL | OpenAPI3 | Readable
+  openAPITS?: object
+  moduleName: string
+  nuxtBuildDir: string
+  resolvePath: (...paths: string[]) => string
+}
+
+export async function addCachedSchemaTemplate({
+  name,
+  schema,
+  openAPITS,
+  moduleName,
+  nuxtBuildDir,
+  resolvePath,
+}: SchemaOptions) {
+  const shortName = kebabCase(name)
+  const cacheDir = resolvePath(nuxtBuildDir || '.nuxt', `cache/${moduleName}`)
+  await mkdir(cacheDir, { recursive: true })
+
+  let fileBody = ''
+  const filePath = schema instanceof URL ? schema.pathname : schema
+  if (typeof filePath === 'string' && existsSync(filePath)) {
+    fileBody = await readFile(filePath, 'utf-8')
+  }
+  else {
+    // Currently we can only cache local files
+    const ast = await openapiTS(schema, openAPITS)
+    return astToString(ast)
+  }
+
+  const key = hash([schema, openAPITS, moduleName, shortName, fileBody])
+  const cachedPath = resolvePath(cacheDir, `${shortName}-${key}.ts`)
+
+  if (existsSync(cachedPath)) {
+    return await readFile(cachedPath, 'utf-8')
+  }
+
+  const ast = await openapiTS(schema, openAPITS)
+  const contents = astToString(ast)
+
+  await writeFile(cachedPath, contents, 'utf-8')
+
+  for (const file of await readdir(cacheDir)) {
+    if (file.startsWith(`${shortName}-`) && file !== `${shortName}-${key}.ts`) {
+      try {
+        await unlink(resolvePath(cacheDir, file))
+      }
+      catch {}
+    }
+  }
+
+  return contents
 }
