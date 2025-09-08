@@ -16,7 +16,7 @@ import {
 import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
 import { join } from 'pathe'
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 import { kebabCase, pascalCase } from 'scule'
 import { name, version } from '../package.json'
