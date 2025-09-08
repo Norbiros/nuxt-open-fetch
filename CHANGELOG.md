@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.13.5
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.4...v0.13.5)
+
+### 🩹 Fixes
+
+- Properly resolve paths in `openapiTS` code caching on Windows ([44199d4](https://github.com/enkot/nuxt-open-fetch/commit/44199d4))
+
+### ❤️ Contributors
+
+- Štěpán Mynařík ([@StepanMynarik](https://github.com/StepanMynarik))
+
 ## v0.13.4
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.3...v0.13.4)
