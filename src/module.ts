@@ -3,6 +3,7 @@ import type { FetchOptions } from 'ofetch'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import {
   addImportsSources,
   addPlugin,
@@ -349,7 +350,7 @@ export async function addCachedSchemaTemplate({
   await mkdir(cacheDir, { recursive: true })
 
   let fileBody = ''
-  const filePath = schema instanceof URL ? schema.pathname : schema
+  const filePath = schema instanceof URL ? fileURLToPath(schema) : schema
   if (typeof filePath === 'string' && existsSync(filePath)) {
     fileBody = await readFile(filePath, 'utf-8')
   }
