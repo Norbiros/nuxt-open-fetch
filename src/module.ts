@@ -3,6 +3,7 @@ import type { FetchOptions } from 'ofetch'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import {
   addImportsSources,
   addPlugin,
@@ -16,7 +17,6 @@ import {
 import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
 import { join } from 'pathe'
-import { fileURLToPath } from 'node:url';
 
 import { kebabCase, pascalCase } from 'scule'
 import { name, version } from '../package.json'
