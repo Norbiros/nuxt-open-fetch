@@ -16,6 +16,7 @@ import {
 import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
 import { join } from 'pathe'
+import { fileURLToPath } from 'url';
 
 import { kebabCase, pascalCase } from 'scule'
 import { name, version } from '../package.json'
@@ -349,7 +350,7 @@ export async function addCachedSchemaTemplate({
   await mkdir(cacheDir, { recursive: true })
 
   let fileBody = ''
-  const filePath = schema instanceof URL ? schema.pathname : schema
+  const filePath = schema instanceof URL ? fileURLToPath(schema) : schema
   if (typeof filePath === 'string' && existsSync(filePath)) {
     fileBody = await readFile(filePath, 'utf-8')
   }
