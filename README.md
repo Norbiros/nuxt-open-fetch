@@ -27,8 +27,7 @@ In other words - `$fetch` and `useFetch` on steroids. Uses awesome [openapi-type
 
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
 - [📖 &nbsp;Read the documentation](https://nuxt-open-fetch.norbiros.dev/)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+- [👾 &nbsp;Playground](https://stackblitz.com/github/Norbiros/nuxt-open-fetch/tree/main/playground?file=app.vue)
 
 ## Features
 

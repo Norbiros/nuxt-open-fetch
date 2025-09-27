@@ -65,6 +65,11 @@ export default defineAppConfig({
         label: 'Nuxt Website',
         to: 'https://nuxt.com',
         target: '_blank',
+      }, {
+        icon: 'i-lucide-puzzle',
+        label: 'Playground',
+        to: 'https://stackblitz.com/github/Norbiros/nuxt-open-fetch/tree/main/playground?file=app.vue',
+        target: '_blank',
       }],
     },
   },

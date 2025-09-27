@@ -9,7 +9,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "nuxt-open-fetch": "workspace:*"
+    "nuxt-open-fetch": "latest"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.19.2",

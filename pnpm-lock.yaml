@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@norbiros/nuxt-auto-form': workspace:*
+
 importers:
 
   .:
@@ -116,8 +119,8 @@ importers:
   playground:
     dependencies:
       nuxt-open-fetch:
-        specifier: workspace:*
-        version: link:..
+        specifier: latest
+        version: 0.13.5(magicast@0.3.5)(typescript@5.8.3)
     devDependencies:
       '@nuxt/test-utils':
         specifier: ^3.19.2
@@ -5087,6 +5090,9 @@ packages:
     peerDependencies:
       '@unhead/vue': ^2.0.5
       unstorage: ^1.15.0
+
+  nuxt-open-fetch@0.13.5:
+    resolution: {integrity: sha512-84fw/zZr97J0JgN7uWMMSW/VnHxYV4XUI4bDTQrT4ivvCDT+lPCsuyYJeu2s52YlmpbVDXWpXGBhf9FQZmQzTA==}
 
   nuxt-site-config-kit@3.2.2:
     resolution: {integrity: sha512-SmTBVm6JQd5zHBy04/qn0gWo3rg1HTRGT/H91hxk/o+mDB3ll+TkzpZekD46RUBO/AD02ArLG5n2ndu6zhWsHA==}
@@ -12969,6 +12975,18 @@ snapshots:
       - supports-color
       - vite
       - vue
+
+  nuxt-open-fetch@0.13.5(magicast@0.3.5)(typescript@5.8.3):
+    dependencies:
+      '@nuxt/kit': 4.0.0(magicast@0.3.5)
+      defu: 6.1.4
+      ohash: 2.0.11
+      openapi-typescript: 7.8.0(typescript@5.8.3)
+      openapi-typescript-helpers: 0.0.15
+      scule: 1.3.0
+    transitivePeerDependencies:
+      - magicast
+      - typescript
 
   nuxt-site-config-kit@3.2.2(magicast@0.3.5)(vue@3.5.17(typescript@5.6.3)):
     dependencies:
