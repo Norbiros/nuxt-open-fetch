@@ -4,6 +4,7 @@ import type { $Fetch } from 'ofetch'
 import type { Ref } from 'vue'
 import type {
   AcceptMediaTypeOption,
+  BodySerializerOption,
   ExtractMediaType,
   FetchResponseData,
   FetchResponseError,
@@ -38,6 +39,7 @@ type UseOpenFetchOptions<
   & ComputedOptions<ParamsOption<Operation>>
   & ComputedOptions<RequestBodyOption<Operation>>
   & ComputedOptions<AcceptMediaTypeOption<Media>>
+  & ComputedOptions<BodySerializerOption<RequestBodyOption<Operation>['body']>>
   & Omit<UseFetchOptions<ResT, DataT, PickKeys, DefaultT>, 'query' | 'body' | 'method'>
 
 export type UseOpenFetchClient<Paths, Lazy> = <
