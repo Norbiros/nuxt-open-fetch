@@ -32,6 +32,10 @@ export interface AcceptMediaTypeOption<M> {
   accept?: M | M[]
 }
 
+export interface BodySerializerOption<TBody> {
+  bodySerializer?: (body: TBody) => any
+}
+
 export type FilterMethods<T> = { [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined ? never : K]: T[K] }
 
 export type ExtractMediaType<T> = ResponseObjectMap<T> extends Record<string | number, any>
@@ -52,6 +56,7 @@ type OpenFetchOptions<
   & RequestBodyOption<Operation>
   & AcceptMediaTypeOption<Media>
   & Omit<FetchOptions, 'query' | 'body' | 'method'>
+  & BodySerializerOption<RequestBodyOption<Operation>['body']>
 
 export type OpenFetchClient<Paths> = <
   ReqT extends Extract<keyof Paths, string>,
@@ -129,9 +134,14 @@ export function createOpenFetch<Paths>(
       path?: Record<string, string>
       accept?: MediaType | MediaType[]
       header: HeadersInit | undefined
+      bodySerializer?: (body: any) => any
     } = {
       ...baseOpts,
       ...getOpenFetchHooks(hooks, baseOpts, hookIdentifier as OpenFetchClientName),
+    }
+
+    if (opts.body && opts.bodySerializer) {
+      opts.body = opts.bodySerializer(opts.body)
     }
 
     if (opts.header) {
