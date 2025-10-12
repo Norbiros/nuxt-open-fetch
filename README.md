@@ -89,6 +89,8 @@ pnpm lint
 # Run Vitest
 pnpm test
 pnpm test:watch
+pnpm test --project nuxt
+pnpm test --project types
 
 # Release new version
 pnpm release
