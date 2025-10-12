@@ -71,7 +71,7 @@ describe('$[client]', async () => {
 
   it('has correct return type', () => async () => {
     const data = await $pets('/pet/{petId}')
-    expectTypeOf(data).toMatchTypeOf<ReturnData>()
+    expectTypeOf(data).toExtend<ReturnData>()
   })
 
   it('returns correct type based on accept header', () => async () => {
@@ -139,7 +139,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toMatchTypeOf<Ref<ReturnData | undefined>>()
+    expectTypeOf(data).toExtend<Ref<ReturnData | undefined>>()
   })
 
   it('has correct "transform" input parameter type', () => () => {
@@ -162,9 +162,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toMatchTypeOf<Ref<{
-      foo: string
-    } | undefined>>()
+    expectTypeOf(data).toExtend<Ref<{ foo: string } | undefined>>()
   })
 
   it('has correct reponse type using "default"', () => () => {
@@ -176,9 +174,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toMatchTypeOf<Ref<ReturnData | {
-      bar: number
-    }>>()
+    expectTypeOf(data).toExtend<Ref<ReturnData | { bar: number }>>()
   })
 
   it('has correct response type using "default" and "transform"', () => () => {
@@ -193,11 +189,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toMatchTypeOf<Ref<{
-      foo: string
-    } | {
-      bar: number
-    }>>()
+    expectTypeOf(data).toExtend<Ref<{ foo: string } | { bar: number }>>()
   })
 
   it('has correct response type using "pick"', () => () => {
@@ -207,9 +199,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toMatchTypeOf<Ref<{
-      name: string
-    } | undefined>>()
+    expectTypeOf(data).toExtend<Ref<{ name: string } | undefined>>()
   })
 
   it('returns correct type based on accept header', () => () => {
