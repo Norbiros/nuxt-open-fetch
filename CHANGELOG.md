@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.13.6
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.5...v0.13.6)
+
+### 🚀 Enhancements
+
+- Create online playground on stackblitz ([3b8d78f](https://github.com/enkot/nuxt-open-fetch/commit/3b8d78f))
+- Add bodySerializer option ([2a26938](https://github.com/enkot/nuxt-open-fetch/commit/2a26938))
+
+### 📖 Documentation
+
+- Add bodySerializer option ([ff96890](https://github.com/enkot/nuxt-open-fetch/commit/ff96890))
+
+### ❤️ Contributors
+
+- J.c ([@Jak-Ch-ll](https://github.com/Jak-Ch-ll))
+- Norbiros ([@Norbiros](https://github.com/Norbiros))
+
 ## v0.13.5
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.4...v0.13.5)
