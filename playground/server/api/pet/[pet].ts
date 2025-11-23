@@ -1,5 +1,3 @@
-import { defineEventHandler } from 'h3'
-
 export default defineEventHandler((event) => {
   const petId = Number.parseInt(getRouterParam(event, 'petId') || '1')
   const acceptHeader = getHeader(event, 'Accept') || ''

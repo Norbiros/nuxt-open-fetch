@@ -68,7 +68,7 @@ export type OpenFetchClient<Paths> = <
   ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
 >(
   url: ReqT,
-  options?: OpenFetchOptions<Method, LowercasedMethod, Methods, Media>
+  options?: OpenFetchOptions<Method, LowercasedMethod, Methods, Media>,
 ) => Promise<ResT>
 
 // More flexible way to rewrite the request path,

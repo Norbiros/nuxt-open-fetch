@@ -4,8 +4,6 @@ export default defineAppConfig({
       primary: 'green',
       neutral: 'slate',
     },
-  },
-  uiPro: {
     footer: {
       slots: {
         root: 'border-t border-default',

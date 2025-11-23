@@ -35,7 +35,7 @@ type UseOpenFetchOptions<
   DefaultT = null,
   Operation = 'get' extends LowercasedMethod ? ('get' extends keyof Params ? Params['get'] : never) : LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never,
 >
-= ComputedMethodOption<Method, Params>
+  = ComputedMethodOption<Method, Params>
   & ComputedOptions<ParamsOption<Operation>>
   & ComputedOptions<RequestBodyOption<Operation>>
   & ComputedOptions<AcceptMediaTypeOption<Media>>
@@ -58,7 +58,7 @@ export type UseOpenFetchClient<Paths, Lazy> = <
   url: ReqT | (() => ReqT),
   options?: Lazy extends true
     ? Omit<UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>, 'lazy'>
-    : UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>
+    : UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>,
 ) => AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
 
 export function createUseOpenFetch<

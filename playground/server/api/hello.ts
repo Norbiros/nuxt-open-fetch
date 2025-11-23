@@ -1,5 +1,3 @@
-import { defineEventHandler } from 'h3'
-
 export default defineEventHandler(async () => {
   // @ts-ignore Workaround to add another property to NitroApp
   const { $api } = useNitroApp()
