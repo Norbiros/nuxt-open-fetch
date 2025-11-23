@@ -51,7 +51,7 @@ type OpenFetchOptions<
     ? ('get' extends keyof Params ? Params['get'] : never)
     : (LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never),
 >
-= MethodOption<Method, Params>
+  = MethodOption<Method, Params>
   & ParamsOption<Operation>
   & RequestBodyOption<Operation>
   & AcceptMediaTypeOption<Media>

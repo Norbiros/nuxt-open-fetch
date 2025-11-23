@@ -7,4 +7,7 @@ export default antfu({
       'ts/ban-ts-comment': 'off',
     },
   },
+  rules: {
+    'style/indent-binary-ops': 'off',
+  },
 })

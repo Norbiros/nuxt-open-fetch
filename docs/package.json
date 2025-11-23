@@ -21,6 +21,7 @@
     "nuxt-open-fetch": "workspace:*"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^4.17.0",
     "@nuxt/eslint": "^1.10.0",
     "eslint": "^9.39.1",
     "nuxt-content-twoslash": "^0.1.2",
