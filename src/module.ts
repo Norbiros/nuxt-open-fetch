@@ -54,7 +54,7 @@ export default defineNuxtModule<ModuleOptions>({
     version,
     configKey: 'openFetch',
     compatibility: {
-      nuxt: '>=3.0.0 <5.0.0-alpha.0',
+      nuxt: '>=3.0.0',
     },
   },
   async setup(options, nuxt) {
