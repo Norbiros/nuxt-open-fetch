@@ -132,7 +132,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     schemas.forEach(({ name, schema, openAPITS }) => {
       addTemplate({
-        filename: `types/${moduleName}/schemas/${kebabCase(name)}.ts`,
+        filename: `types/${moduleName}/schemas/${kebabCase(name)}.d.ts`,
         getContents: () =>
           addCachedSchemaTemplate({
             name,
@@ -361,7 +361,7 @@ export async function addCachedSchemaTemplate({
   }
 
   const key = hash([schema, openAPITS, moduleName, shortName, fileBody])
-  const cachedPath = resolvePath(cacheDir, `${shortName}-${key}.ts`)
+  const cachedPath = resolvePath(cacheDir, `${shortName}-${key}.d.ts`)
 
   if (existsSync(cachedPath)) {
     return await readFile(cachedPath, 'utf-8')
@@ -373,7 +373,7 @@ export async function addCachedSchemaTemplate({
   await writeFile(cachedPath, contents, 'utf-8')
 
   for (const file of await readdir(cacheDir)) {
-    if (file.startsWith(`${shortName}-`) && file !== `${shortName}-${key}.ts`) {
+    if (file.startsWith(`${shortName}-`) && file !== `${shortName}-${key}.d.ts`) {
       try {
         await unlink(resolvePath(cacheDir, file))
       }
