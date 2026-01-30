@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v0.13.8
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.6...v0.13.8)
+
+### 🚀 Enhancements
+
+- **ci:** New `publish` workflow used for Trusted Publishing ([c5f81b9](https://github.com/enkot/nuxt-open-fetch/commit/c5f81b9))
+
+### 🩹 Fixes
+
+- Resolve eslint conflicts ([2391360](https://github.com/enkot/nuxt-open-fetch/commit/2391360))
+- Stub schema imports in SSR to prevent OOM ([ba437f3](https://github.com/enkot/nuxt-open-fetch/commit/ba437f3))
+
+### 💅 Refactors
+
+- Replace deprecated toMatchTypeOf ([0f8029b](https://github.com/enkot/nuxt-open-fetch/commit/0f8029b))
+
+### 🏡 Chore
+
+- Fix vitest types test setup ([bc60e62](https://github.com/enkot/nuxt-open-fetch/commit/bc60e62))
+- **docs:** Update deps & migrate to `@nuxt/ui` v4 ([f8c067d](https://github.com/enkot/nuxt-open-fetch/commit/f8c067d))
+- Update Nuxt compatibility range ([2a04df1](https://github.com/enkot/nuxt-open-fetch/commit/2a04df1))
+
+### ❤️ Contributors
+
+- Norbiros ([@Norbiros](https://github.com/Norbiros))
+- Max <maximogarciamtnez@gmail.com>
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- J.c ([@Jak-Ch-ll](https://github.com/Jak-Ch-ll))
+
 ## v0.13.6
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.5...v0.13.6)
