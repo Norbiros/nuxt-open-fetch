@@ -27,6 +27,15 @@ export interface OpenFetchOptions extends Pick<FetchOptions, 'baseURL' | 'query'
 
 export interface OpenFetchClientOptions extends OpenFetchOptions {
   schema?: OpenAPI3Schema
+  /** Per-client `openapi-typescript` options. Takes precedence over the global `openAPITS` option. */
+  openAPITS?: OpenAPITSOptions
+  /**
+   * When `true`, the schema file is registered as a `.ts` module (importable at runtime).
+   * Required when using `openAPITS: { enum: true }` or `makePathsEnum: true` to import
+   * enum values from `#open-fetch-schemas/<client>`.
+   * Auto-detected from the effective `openAPITS` config when not explicitly set.
+   */
+  runtimeSchemas?: boolean
 }
 
 export interface ModuleOptions {
@@ -44,6 +53,7 @@ interface ResolvedSchema {
   }
   schema: OpenAPI3Schema
   openAPITS?: OpenAPITSOptions
+  runtimeSchemas: boolean
 }
 
 const moduleName = 'open-fetch'
@@ -65,7 +75,7 @@ export default defineNuxtModule<ModuleOptions>({
     const schemas: ResolvedSchema[] = []
 
     nuxt.options.runtimeConfig.public.openFetch = Object.fromEntries(Object.entries(options.clients)
-      .map(([key, { schema: _, ...options }]) => [key, options])) as any
+      .map(([key, { schema: _, openAPITS: __, runtimeSchemas: ___, ...options }]) => [key, options])) as any
 
     for (const layer of nuxt.options._layers) {
       const { rootDir, openFetch } = layer.config
@@ -100,6 +110,7 @@ export default defineNuxtModule<ModuleOptions>({
         if (!schema)
           throw new Error(`Could not find OpenAPI schema for "${name}"`)
 
+        const clientOpenAPITS = config.openAPITS ?? options?.openAPITS
         schemas.push({
           name,
           fetchName: {
@@ -107,7 +118,8 @@ export default defineNuxtModule<ModuleOptions>({
             lazyComposable: getClientName(name, true),
           },
           schema,
-          openAPITS: options?.openAPITS,
+          openAPITS: clientOpenAPITS,
+          runtimeSchemas: config.runtimeSchemas ?? hasRuntimeValues(clientOpenAPITS),
         })
       }
     }
@@ -115,7 +127,14 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.alias = {
       ...nuxt.options.alias,
       '#open-fetch': join(nuxt.options.buildDir, moduleName),
+      // Wildcard alias: used by TypeScript (tsconfig paths supports wildcards).
       '#open-fetch-schemas/*': join(nuxt.options.buildDir, 'types', moduleName, 'schemas', '*'),
+      // Per-client direct aliases: Vite's resolve.alias does literal string matching,
+      // so wildcards don't work for runtime imports. Each client needs an explicit entry.
+      ...Object.fromEntries(schemas.map(({ name, runtimeSchemas }) => {
+        const ext = runtimeSchemas ? 'ts' : 'd.ts'
+        return [`#open-fetch-schemas/${kebabCase(name)}`, join(nuxt.options.buildDir, 'types', moduleName, 'schemas', `${kebabCase(name)}.${ext}`)]
+      })),
     }
 
     nuxt.options.optimization = nuxt.options.optimization || {
@@ -130,15 +149,17 @@ export default defineNuxtModule<ModuleOptions>({
       ]),
     ]
 
-    schemas.forEach(({ name, schema, openAPITS }) => {
+    schemas.forEach(({ name, schema, openAPITS, runtimeSchemas }) => {
+      const ext = runtimeSchemas ? 'ts' : 'd.ts'
       addTemplate({
-        filename: `types/${moduleName}/schemas/${kebabCase(name)}.d.ts`,
+        filename: `types/${moduleName}/schemas/${kebabCase(name)}.${ext}`,
         getContents: () =>
           addCachedSchemaTemplate({
             name,
             schema,
             openAPITS,
             moduleName,
+            runtimeSchemas,
             nuxtBuildDir: nuxt.options.buildDir || '.nuxt',
             resolvePath: resolve,
           }),
@@ -328,11 +349,16 @@ function isValidUrl(url: string) {
   }
 }
 
+function hasRuntimeValues(openAPITS?: OpenAPITSOptions): boolean {
+  return !!(openAPITS?.enum || (openAPITS as any)?.makePathsEnum)
+}
+
 interface SchemaOptions {
   name: string
   schema: string | URL | OpenAPI3 | Readable
   openAPITS?: object
   moduleName: string
+  runtimeSchemas: boolean
   nuxtBuildDir: string
   resolvePath: (...paths: string[]) => string
 }
@@ -342,6 +368,7 @@ export async function addCachedSchemaTemplate({
   schema,
   openAPITS,
   moduleName,
+  runtimeSchemas,
   nuxtBuildDir,
   resolvePath,
 }: SchemaOptions) {
@@ -361,7 +388,8 @@ export async function addCachedSchemaTemplate({
   }
 
   const key = hash([schema, openAPITS, moduleName, shortName, fileBody])
-  const cachedPath = resolvePath(cacheDir, `${shortName}-${key}.d.ts`)
+  const ext = runtimeSchemas ? 'ts' : 'd.ts'
+  const cachedPath = resolvePath(cacheDir, `${shortName}-${key}.${ext}`)
 
   if (existsSync(cachedPath)) {
     return await readFile(cachedPath, 'utf-8')
@@ -373,7 +401,7 @@ export async function addCachedSchemaTemplate({
   await writeFile(cachedPath, contents, 'utf-8')
 
   for (const file of await readdir(cacheDir)) {
-    if (file.startsWith(`${shortName}-`) && file !== `${shortName}-${key}.d.ts`) {
+    if (file.startsWith(`${shortName}-`) && file !== `${shortName}-${key}.${ext}`) {
       try {
         await unlink(resolvePath(cacheDir, file))
       }

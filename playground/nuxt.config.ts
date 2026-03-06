@@ -10,6 +10,10 @@ export default defineNuxtConfig({
       api: {
         baseURL: 'http://localhost:3000/api',
       },
+      apiEnum: {
+        schema: './openapi/api/openapi.yaml',
+        openAPITS: { enum: true },
+      },
     },
   },
 
