@@ -1,5 +1,8 @@
 import type { paths } from '#open-fetch-schemas/api'
+import type { NitroApp as NitroAppMain } from 'nitropack'
+import type { NitroApp as NitroAppCompat } from 'nitropack/types'
 import type { Ref } from 'vue'
+import type { OpenFetchClient } from '../../src/runtime/fetch'
 import { describe, expectTypeOf, it } from 'vitest'
 import { createOpenFetch } from '../../src/runtime/fetch'
 import { createUseOpenFetch } from '../../src/runtime/useFetch'
@@ -234,5 +237,12 @@ describe('use[Client]', async () => {
     })
 
     expectTypeOf(data).toEqualTypeOf<Ref<ReturnData | ReturnDataV2 | undefined>>()
+  })
+})
+
+describe('NitroApp typing', () => {
+  it('augments both NitroApp entrypoints', () => {
+    expectTypeOf<NitroAppMain['$api']>().toEqualTypeOf<OpenFetchClient<paths>>()
+    expectTypeOf<NitroAppCompat['$api']>().toEqualTypeOf<OpenFetchClient<paths>>()
   })
 })

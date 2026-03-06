@@ -283,13 +283,19 @@ export {}
     })
 
     // Nitro types
-    addTemplate({
+    addTypeTemplate({
       filename: `types/${moduleName}/nitro.d.ts`,
       getContents: () => `
 import type { OpenFetchClient } from '#imports'
 ${schemas.map(({ name }) => `
 import type { paths as ${pascalCase(name)}Paths } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
+
+declare module 'nitropack' {
+  interface NitroApp {
+    ${schemas.map(({ name }) => `$${name}: OpenFetchClient<${pascalCase(name)}Paths>`.trimStart()).join('\n    ')}
+  }
+}
 
 declare module 'nitropack/types' {
   interface NitroApp {
@@ -299,10 +305,9 @@ declare module 'nitropack/types' {
 
 export {}
 `.trimStart(),
-    })
-
-    nuxt.hook('nitro:config', (nitroConfig) => {
-      nitroConfig.typescript?.tsConfig?.include?.push(`./types/${moduleName}/nitro.d.ts`)
+    }, {
+      nitro: true,
+      node: true,
     })
 
     if (!options.disableNuxtPlugin)
