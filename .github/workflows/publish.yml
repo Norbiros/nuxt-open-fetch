@@ -27,4 +27,4 @@ jobs:
       - run: pnpm test
       - run: pnpm typecheck
       - run: pnpm prepack
-      - run: pnpm publish
+      - run: npm publish --no-git-checks --provenance
