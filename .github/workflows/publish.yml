@@ -23,6 +23,8 @@ jobs:
       - run: npm i -g --force corepack@latest && corepack enable
 
       - run: pnpm install
+      - run: pnpm run dev:prepare
+
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm typecheck
