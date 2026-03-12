@@ -19,12 +19,12 @@
   "repository": "Norbiros/nuxt-open-fetch",
   "keywords": [
     "nuxt",
-    "nuxt3",
     "api",
     "openapi",
     "query",
     "fetch",
-    "composable"
+    "composable",
+    "typescript"
   ],
   "exports": {
     ".": {
