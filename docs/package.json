@@ -10,21 +10,21 @@
   },
   "dependencies": {
     "@iconify-json/heroicons": "^1.2.3",
-    "@iconify-json/simple-icons": "^1.2.59",
-    "@nuxt/content": "^3.8.2",
-    "@nuxt/fonts": "^0.12.1",
+    "@iconify-json/simple-icons": "^1.2.73",
+    "@nuxt/content": "^3.12.0",
+    "@nuxt/fonts": "^0.14.0",
     "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "^4.2.1",
-    "better-sqlite3": "^12.4.6",
-    "nuxt": "^4.2.1",
-    "nuxt-og-image": "^5.1.12",
+    "@nuxt/ui": "^4.5.1",
+    "better-sqlite3": "^12.6.2",
+    "nuxt": "^4.3.1",
+    "nuxt-og-image": "^5.1.13",
     "nuxt-open-fetch": "workspace:*"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.17.0",
-    "@nuxt/eslint": "^1.10.0",
-    "eslint": "^9.39.1",
-    "nuxt-content-twoslash": "^0.1.2",
-    "vue-tsc": "^3.1.5"
+    "@antfu/eslint-config": "^7.7.2",
+    "@nuxt/eslint": "^1.15.2",
+    "eslint": "^10.0.3",
+    "nuxt-content-twoslash": "^0.3.0",
+    "vue-tsc": "^3.2.5"
   }
 }
