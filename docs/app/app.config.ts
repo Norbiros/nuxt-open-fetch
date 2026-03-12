@@ -24,7 +24,7 @@ export default defineAppConfig({
     colorMode: true,
     links: [{
       'icon': 'i-simple-icons-github',
-      'to': 'https://github.com/enkot/nuxt-open-fetch',
+      'to': 'https://github.com/Norbiros/nuxt-open-fetch',
       'target': '_blank',
       'aria-label': 'Nuxt Open Fetch',
     }],
@@ -39,7 +39,7 @@ export default defineAppConfig({
       'aria-label': 'Nuxt Website',
     }, {
       'icon': 'i-simple-icons-github',
-      'to': 'https://github.com/enkot/nuxt-open-fetch',
+      'to': 'https://github.com/Norbiros/nuxt-open-fetch',
       'target': '_blank',
       'aria-label': 'Nuxt Open Fetch',
     }],
@@ -51,7 +51,7 @@ export default defineAppConfig({
       links: [{
         icon: 'i-heroicons-star',
         label: 'Star on GitHub',
-        to: 'https://github.com/enkot/nuxt-open-fetch',
+        to: 'https://github.com/Norbiros/nuxt-open-fetch',
         target: '_blank',
       }, {
         icon: 'i-simple-icons-typescript',

@@ -51,7 +51,7 @@ Generate zero-overhead, 100% typed OpenAPI fetch clients
   color: gray
   icon: i-simple-icons-github
   size: lg
-  to: https://github.com/enkot/nuxt-open-fetch
+  to: https://github.com/Norbiros/nuxt-open-fetch
   target: _blank
   variant: subtle
   ---

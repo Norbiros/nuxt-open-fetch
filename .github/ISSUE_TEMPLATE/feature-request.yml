@@ -32,5 +32,5 @@ body:
       options:
         - label: Read the [contribution guide](https://nuxt.com/docs/community/contribution).
           required: true
-        - label: Check existing [discussions](https://github.com/enkot/nuxt-open-fetch/discussions) and [issues](https://github.com/enkot/nuxt-open-fetch/issues).
+        - label: Check existing [discussions](https://github.com/Norbiros/nuxt-open-fetch/discussions) and [issues](https://github.com/Norbiros/nuxt-open-fetch/issues).
           required: true
