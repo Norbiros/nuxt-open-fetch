@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v0.13.9
+
+[compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.8...v0.13.9)
+
+### 🚀 Enhancements
+
+- Export type definitions for both `nitropack` and `nitro` ([1ea1d4a](https://github.com/enkot/nuxt-open-fetch/commit/1ea1d4a))
+
+### 🩹 Fixes
+
+- **ci:** Use `install` command instead of `ci` ([bc4fa93](https://github.com/enkot/nuxt-open-fetch/commit/bc4fa93))
+- **types:** Register nitro client types with addTypeTemplate ([eb6c664](https://github.com/enkot/nuxt-open-fetch/commit/eb6c664))
+- **runtime:** Make injected clients mockable ([5f24d50](https://github.com/enkot/nuxt-open-fetch/commit/5f24d50))
+- **ci:** Use `npm` for publishing package instead of `pnpm` ([e6c3010](https://github.com/enkot/nuxt-open-fetch/commit/e6c3010))
+
+### 📖 Documentation
+
+- Change $api to $pets in Nitro handler example ([f984884](https://github.com/enkot/nuxt-open-fetch/commit/f984884))
+
+### ❤️ Contributors
+
+- Norbiros <norbiros@protonmail.com>
+- Max <maximogarciamtnez@gmail.com>
+- Ronald Rupp
+
 ## v0.13.8
 
 [compare changes](https://github.com/enkot/nuxt-open-fetch/compare/v0.13.6...v0.13.8)
