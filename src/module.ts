@@ -206,6 +206,10 @@ declare module 'nitropack' {
   interface NitroRuntimeHooks extends GlobalFetchHooks, ClientFetchHooks {}
 }
 
+declare module 'nitro' {
+  interface NitroRuntimeHooks extends GlobalFetchHooks, ClientFetchHooks {}
+}
+
 export {}
 `,
     })
@@ -291,16 +295,24 @@ ${schemas.map(({ name }) => `
 import type { paths as ${pascalCase(name)}Paths } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
 
+interface OpenFetchNitroApp {
+  ${schemas.map(({ name }) => `$${name}: OpenFetchClient<${pascalCase(name)}Paths>`.trimStart()).join('\n  ')}
+}
+
 declare module 'nitropack' {
-  interface NitroApp {
-    ${schemas.map(({ name }) => `$${name}: OpenFetchClient<${pascalCase(name)}Paths>`.trimStart()).join('\n    ')}
-  }
+  interface NitroApp extends OpenFetchNitroApp {}
 }
 
 declare module 'nitropack/types' {
-  interface NitroApp {
-    ${schemas.map(({ name }) => `$${name}: OpenFetchClient<${pascalCase(name)}Paths>`.trimStart()).join('\n    ')}
-  }
+  interface NitroApp extends OpenFetchNitroApp {}
+}
+
+declare module 'nitro' {
+  interface NitroApp extends OpenFetchNitroApp {}
+}
+
+declare module 'nitro/types' {
+  interface NitroApp extends OpenFetchNitroApp {}
 }
 
 export {}
