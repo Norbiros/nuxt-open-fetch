@@ -115,6 +115,7 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.alias = {
       ...nuxt.options.alias,
       '#open-fetch': join(nuxt.options.buildDir, moduleName),
+      '#open-fetch-use-fetch': resolve('runtime/useFetch'),
       '#open-fetch-schemas/*': join(nuxt.options.buildDir, 'types', moduleName, 'schemas', '*'),
     }
 
@@ -218,7 +219,7 @@ export {}
       filename: `${moduleName}.ts`,
       getContents() {
         return `
-import { createUseOpenFetch } from '#imports'
+import { createUseOpenFetch } from '#open-fetch-use-fetch'
 ${schemas.map(({ name }) => `
 import type { paths as ${pascalCase(name)}Paths, operations as ${pascalCase(name)}Operations } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
