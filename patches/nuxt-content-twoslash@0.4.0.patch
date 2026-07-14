@@ -1,0 +1,167 @@
+diff --git a/dist/module.mjs b/dist/module.mjs
+index e93ee6f2cb53b466abc80b46d80bf67ffb8fefc0..985742f8d005ba550f165c903817ff3cab01aaf0 100644
+--- a/dist/module.mjs
++++ b/dist/module.mjs
+@@ -1,6 +1,6 @@
+-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+-import { defineNuxtModule, createResolver, addPlugin, installModule, normalizeTemplate, addTemplate } from '@nuxt/kit';
+-import { dirname } from 'pathe';
++import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
++import { defineNuxtModule, createResolver, addPlugin, installModule, normalizeTemplate, addTemplate, updateTemplates } from '@nuxt/kit';
++import { dirname, join } from 'pathe';
+ import { h as hasProjectReferences, g as getTypeDecorations, a as getNuxtCompilerOptions, b as getNuxtContextConfigs } from './shared/nuxt-content-twoslash.B76XwMcU.mjs';
+ import 'node:fs/promises';
+ import 'fast-glob';
+@@ -54,9 +54,32 @@ const module$1 = defineNuxtModule({
+       isHookCalled = true;
+     });
+     if (options.includeNuxtTypes) {
+-      nuxt.hook("app:templatesGenerated", async () => {
+-        const buildDir = nuxt.options.buildDir;
++      // Persistent snapshot of the twoslash meta, kept *outside* the build dir so it
++      // survives the `.nuxt` cleanup that runs at the start of every build.
++      const snapshotPath = join(nuxt.options.rootDir, "node_modules/.cache/nuxt-content-twoslash/meta-snapshot.mjs");
++      const buildMeta = () => [
++        `export const rootDir = ${JSON.stringify(nuxt.options.rootDir)};`,
++        `export const moduleOptions = ${JSON.stringify(options, null, 2)}`,
++        `/** @type { Record<string, string> } */`,
++        `export const typeDecorations = ${JSON.stringify(types, null, 2)}`,
++        `/** @type { Record<string, string> } */`,
++        `export const compilerOptions = ${JSON.stringify(compilerOptions, null, 2)}`,
++        `export const hasProjectReferences = ${JSON.stringify(projectReferences)}`,
++        `/** @type { Record<string, { name: string, compilerOptions: Record<string, any>, referenceFile: string, include: string[], exclude: string[] }> } */`,
++        `export const contextConfigs = ${JSON.stringify(contextConfigs, null, 2)}`
++      ].join("\n");
++      const populateMeta = async () => {
++        // The twoslash vfs keys every type file as `.nuxt/<path>` and uses `rootDir`
++        // as its vfs root, so type decorations MUST be read from `<rootDir>/.nuxt`.
++        // `nuxt.options.buildDir` can transiently point at a nested/cache build dir
++        // (e.g. `node_modules/.cache/nuxt/.nuxt`) whose `imports.d.ts` re-exports use
++        // relative paths that only resolve from *that* dir — capturing those would make
++        // `#imports` (and therefore auto-imports) resolve to `any`.
++        const buildDir = join(nuxt.options.rootDir, ".nuxt");
++        if (!existsSync(join(buildDir, "imports.d.ts")))
++          return;
+         projectReferences = hasProjectReferences(buildDir);
++        for (const k in types) delete types[k];
+         await Promise.all([
+           getTypeDecorations(buildDir, types),
+           getNuxtCompilerOptions(buildDir).then((config) => {
+@@ -66,7 +89,30 @@ const module$1 = defineNuxtModule({
+             contextConfigs = configs;
+           }) : Promise.resolve()
+         ]);
++        const meta = buildMeta();
++        writeFileSync(path.dst, meta);
++        // Persist a snapshot once we actually have type decorations, so a later build
++        // can restore it before `@nuxt/content` highlights markdown.
++        if (Object.keys(types).length > 0) {
++          mkdirSync(dirname(snapshotPath), { recursive: true });
++          writeFileSync(snapshotPath, meta);
++        }
++      };
++      // `@nuxt/content` highlights markdown (running the twoslash transformer) inside
++      // its own `modules:done` hook, which fires *before* Nuxt writes its virtual type
++      // templates to disk in `build()`. So on a real build the `.nuxt` type files don't
++      // exist yet and `getTypeDecorations` would return nothing. Because this module is
++      // registered before `@nuxt/content`, our `modules:done` hook runs first: we restore
++      // the fully-populated meta captured during `nuxt prepare` (which skips content
++      // processing) so content is highlighted with real types. Run `nuxt prepare` before
++      // the build to produce this snapshot.
++      nuxt.hook("modules:done", () => {
++        if (existsSync(snapshotPath) && !nuxt.options._prepare) {
++          writeFileSync(path.dst, readFileSync(snapshotPath, "utf-8"));
++        }
+       });
++      // Once the real `.nuxt` templates exist, refresh the meta and snapshot.
++      nuxt.hook("app:templatesGenerated", populateMeta);
+     }
+     nuxt.hook("app:resolve", () => {
+       if (!isHookCalled && !nuxt.options._prepare)
+diff --git a/dist/runtime/transformer.js b/dist/runtime/transformer.js
+index c229c05c309a081b29af9c547f1207018f193a80..746c209673f71c2647c48ecffd1185e54d34b999 100644
+--- a/dist/runtime/transformer.js
++++ b/dist/runtime/transformer.js
+@@ -46,6 +46,7 @@ export async function createTransformer(
+       },
+     }),
+     twoslashOptions: {
++      vfsRoot: rootDir,
+       extraFiles: moduleOptions.includeNuxtTypes
+         ? {
+             ...typeDecorations,
+@@ -98,6 +99,7 @@ export async function createContextTransformer(
+       },
+     }),
+     twoslashOptions: {
++      vfsRoot: rootDir,
+       extraFiles: moduleOptions.includeNuxtTypes
+         ? {
+             ...typeDecorations,
+diff --git a/dist/runtime/plugin.js b/dist/runtime/plugin.js
+index 93254658ada91093177163339695f6225aa3a031..8910843c08a31ddc2902ad47b4732d71c624a67b 100644
+--- a/dist/runtime/plugin.js
++++ b/dist/runtime/plugin.js
+@@ -3,4 +3,12 @@ import TwoSlash from "@shikijs/vitepress-twoslash/client";
+ import "@shikijs/vitepress-twoslash/style.css";
+ export default defineNuxtPlugin((nuxtApp) => {
+-  nuxtApp.vueApp.use(TwoSlash);
++  nuxtApp.vueApp.use(TwoSlash, {
++    themes: {
++      twoslash: {
++        placement: "auto-start",
++        flip: true,
++        handleResize: true
++      }
++    }
++  });
+ });
+diff --git a/dist/shared/nuxt-content-twoslash.B76XwMcU.mjs b/dist/shared/nuxt-content-twoslash.B76XwMcU.mjs
+index 1f793371f8b24db4e65a716ab17205e93ffb7693..9f0962cb17f3e96e03c258a81d4b81dd41c0467e 100644
+--- a/dist/shared/nuxt-content-twoslash.B76XwMcU.mjs
++++ b/dist/shared/nuxt-content-twoslash.B76XwMcU.mjs
+@@ -6,15 +6,26 @@ import picomatch from 'picomatch';
+ import ts from 'typescript';
+ 
+ async function getTypeDecorations(dir, filesMap = {}) {
+-  const files = await fg("**/*.d.ts", {
+-    cwd: dir,
+-    onlyFiles: true
+-  });
+-  await Promise.all(
+-    files.map(async (file) => {
++  const workspaceSrcDir = resolve(dir, "../../src");
++  const [dtsFiles, tsFiles] = await Promise.all([
++    fg("**/*.d.ts", { cwd: dir, onlyFiles: true }),
++    fg("*.ts", { cwd: dir, onlyFiles: true })
++  ]);
++  const workspaceSrcFiles = existsSync(workspaceSrcDir)
++    ? await fg("**/*.ts", { cwd: workspaceSrcDir, onlyFiles: true })
++    : [];
++  await Promise.all([
++    ...dtsFiles.map(async (file) => {
++      filesMap[`.nuxt/${file}`] = await fs.readFile(join(dir, file), "utf-8");
++    }),
++    ...tsFiles.map(async (file) => {
+      filesMap[`.nuxt/${file}`] = await fs.readFile(join(dir, file), "utf-8");
++    }),
++    ...workspaceSrcFiles.map(async (file) => {
++      filesMap[`../src/${file}`] = await fs.readFile(join(workspaceSrcDir, file), "utf-8");
+     })
+-  );
++  ]);
+   return filesMap;
+ }
+ async function getNuxtCompilerOptions(dir, tsconfigName = "tsconfig.json") {
+@@ -24,10 +27,10 @@ async function getNuxtCompilerOptions(dir, tsconfigName = "tsconfig.json") {
+       const tsconfig = await fs.readFile(path, "utf-8");
+       const config = JSON.parse(removeJSONComments(tsconfig)) || {};
+       const json = ts.convertCompilerOptionsFromJson(config.compilerOptions, dir, "").options;
++      const rawImportsPath = config.compilerOptions?.paths?.["#imports"]?.[0] || "imports.d.ts";
+       Object.entries(json.paths || {}).forEach(([key, value]) => {
+         json.paths[key] = value.map((v) => `./${relative(dirname(dir), resolve(dir, v))}`);
+         if (key === "#imports") {
+-          const rawImportsPath = config.compilerOptions?.paths?.["#imports"]?.[0] || "imports.d.ts";
+           const cleanPath = rawImportsPath.replace(/^\.\//, "");
+           json.paths[key] = [`./.nuxt/${cleanPath}`];
+         }

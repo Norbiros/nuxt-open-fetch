@@ -2,6 +2,10 @@ packages:
   - ./
   - docs
   - playground
+
+patchedDependencies:
+  nuxt-content-twoslash@0.4.0: patches/nuxt-content-twoslash@0.4.0.patch
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - better-sqlite3

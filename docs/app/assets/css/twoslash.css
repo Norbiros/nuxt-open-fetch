@@ -1,19 +1,42 @@
 :root {
-  --twoslash-popup-bg: rgb(var(--color-gray-800) / 1);
-  --twoslash-popup-color: rgb(var(--color-gray-300) / 1);
-  --twoslash-docs-color: inherit;
-  --twoslash-docs-font: inherit;
-  --twoslash-code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --twoslash-underline-color: #8888;
-  --twoslash-border-color: rgb(var(--color-gray-700) / 1);
-  --twoslash-cursor-color: rgb(var(--color-primary-DEFAULT) / 1);
-  --twoslash-matched-color: rgb(var(--color-primary-DEFAULT) / 1);
+  --vp-c-bg: var(--color-neutral-800);
+  --vp-c-text-1: var(--color-neutral-300);
+  --vp-c-text-2: var(--color-neutral-400);
+  --vp-c-border: var(--color-neutral-700);
+  --vp-c-brand: var(--color-primary-500);
+  --vp-font-family-base: inherit;
+  --vp-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --vp-code-font-size: 1em;
+  --vp-z-index-local-nav: 10;
+  --twoslash-popup-bg: var(--color-neutral-800);
+  --twoslash-popup-color: var(--color-neutral-300);
+  --twoslash-docs-color: var(--color-neutral-300);
+  --twoslash-border-color: var(--color-neutral-700);
+  --twoslash-popup-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
 }
 
 html:not(.dark) {
-  --twoslash-popup-bg: rgb(var(--color-gray-100) / 1);
-  --twoslash-popup-color: rgb(var(--color-gray-600) / 1);
-  --twoslash-border-color: rgb(var(--color-gray-300) / 1);
+  --vp-c-bg: var(--color-neutral-100);
+  --vp-c-text-1: var(--color-neutral-600);
+  --vp-c-text-2: var(--color-neutral-500);
+  --vp-c-border: var(--color-neutral-300);
+  --twoslash-popup-bg: var(--color-neutral-100);
+  --twoslash-popup-color: var(--color-neutral-600);
+  --twoslash-docs-color: var(--color-neutral-600);
+  --twoslash-border-color: var(--color-neutral-300);
+}
+
+.twoslash-floating .v-popper__inner {
+  max-width: min(42rem, calc(100vw - 2rem)) !important;
+  max-height: min(24rem, calc(100vh - 2rem)) !important;
+  overflow: auto;
+}
+
+.twoslash-floating .twoslash-popup-code {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .twoslash-popup-container .twoslash-popup-code {
@@ -32,4 +55,46 @@ html:not(.dark) {
 .twoslash-floating .twoslash-popup-docs-tags .twoslash-popup-docs-tag-name {
   color: inherit;
   opacity: 0.5;
+}
+
+/* Completion (autocomplete) dropdown — keep it a clean, contained popover */
+.twoslash-completion-list {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 10rem;
+  max-width: 12.5rem;
+  max-height: 12.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.25rem;
+  background: var(--twoslash-popup-bg);
+  border: 1px solid var(--twoslash-border-color);
+  border-radius: 0.375rem;
+  box-shadow:
+    var(--twoslash-popup-shadow),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+/* Match the vendor's (0,3,1) selector so our row spacing wins, giving the
+   path text vertical breathing room instead of clipping descenders. */
+.twoslash-floating.twoslash-completion .twoslash-completion-list li {
+  align-items: center;
+  padding: 0.3rem 0.4rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+}
+
+/* Icon column should never shrink */
+.twoslash-completion-list li > .twoslash-completions-icon {
+  flex: none;
+}
+
+/* Text column: single line with ellipsis instead of mid-word wrapping */
+.twoslash-completion-list li > span:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

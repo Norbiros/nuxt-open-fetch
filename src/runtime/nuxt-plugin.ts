@@ -7,6 +7,6 @@ export default defineNuxtPlugin({
     const clients = useRuntimeConfig().public.openFetch
     const $fetch = useRequestFetch()
 
-    installOpenFetchClients(nuxtApp, clients as any, $fetch as any)
+    installOpenFetchClients(nuxtApp as any, clients as any, $fetch as any)
   },
 })

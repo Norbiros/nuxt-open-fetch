@@ -9,6 +9,7 @@ export default defineConfig({
         test: {
           name: 'nuxt',
           environment: 'nuxt',
+          fileParallelism: false,
         },
       }),
       {

@@ -1,6 +1,7 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
+  ignores: ['docs/**', 'playground/**'],
   typescript: {
     overrides: {
       'ts/no-unsafe-function-type': 'off',
@@ -8,6 +9,8 @@ export default antfu({
     },
   },
   rules: {
+    'perfectionist/sort-imports': 'off',
+    'pnpm/yaml-enforce-settings': 'off',
     'style/indent-binary-ops': 'off',
   },
 })

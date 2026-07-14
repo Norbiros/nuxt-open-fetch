@@ -12,20 +12,15 @@ orientation: horizontal
   ::prose-pre
   ```ts twoslash
   // @noErrors
-  const { data } = await usePets('/pet/{petId}', {
-  //                                          ^|
+  import type { OpenFetchClient } from '../src/runtime/fetch'
+  import type { paths } from './.nuxt/types/open-fetch/schemas/pets'
+  declare const $pets: OpenFetchClient<paths>
+  // ---cut---
+  const data = await $pets('/pet/{petId}', {
+  //                 ^?
     path: {
       petId: 2
-    },
-    transform: input => ({
-      name: input.name,
-      status: input.status
-    }),
-    default: () => ({
-      name: 'Tony Stark',
-      email: 'tony@stark.com'
-    }),
-    lazy: true
+    }
   })
   ```
   ::

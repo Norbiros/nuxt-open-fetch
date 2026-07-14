@@ -3,28 +3,32 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
+    "build": "nuxt build && npm run twoslash:reset && nuxt build",
+    "preview": "nuxt preview",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "generate": "nuxt generate && npm run twoslash:reset && nuxt generate",
+    "twoslash:reset": "node -e \"require('node:fs').rmSync('.data', { recursive: true, force: true })\"",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@iconify-json/heroicons": "^1.2.3",
-    "@iconify-json/simple-icons": "^1.2.73",
-    "@nuxt/content": "^3.12.0",
+    "@iconify-json/lucide": "^1.2.117",
+    "@iconify-json/simple-icons": "^1.2.90",
+    "@nuxt/content": "^3.15.0",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "^4.5.1",
-    "better-sqlite3": "^12.6.2",
-    "nuxt": "^4.3.1",
-    "nuxt-og-image": "^5.1.13",
+    "@nuxt/ui": "^4.9.0",
+    "@takumi-rs/core": "^2.1.2",
+    "better-sqlite3": "^12.11.1",
+    "nuxt": "^4.4.8",
+    "nuxt-og-image": "^6.7.2",
     "nuxt-open-fetch": "workspace:*"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.7.2",
-    "@nuxt/eslint": "^1.15.2",
-    "eslint": "^10.0.3",
-    "nuxt-content-twoslash": "^0.3.0",
-    "vue-tsc": "^3.2.5"
+    "@antfu/eslint-config": "^9.1.0",
+    "@nuxt/eslint": "^1.16.0",
+    "eslint": "^10.7.0",
+    "nuxt-content-twoslash": "^0.4.0",
+    "vue-tsc": "^3.3.7"
   }
 }

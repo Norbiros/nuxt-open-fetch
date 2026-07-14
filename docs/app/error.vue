@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
+import { usePets } from '#open-fetch'
 
 defineProps<{
   error: NuxtError
 }>()
+
+const { data } = usePets('/pet/{petId}')
 
 useHead({
   htmlAttrs: {

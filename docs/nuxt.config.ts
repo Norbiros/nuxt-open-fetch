@@ -1,14 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    'nuxt-content-twoslash',
+    'nuxt-open-fetch',
     '@nuxt/ui',
+    'nuxt-content-twoslash',
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/fonts',
     '@nuxt/image',
     'nuxt-og-image',
-    'nuxt-open-fetch',
   ],
 
   devtools: {
@@ -35,13 +35,14 @@ export default defineNuxtConfig({
     },
   },
 
-  future: {
-    compatibilityVersion: 4,
-  },
-
-  compatibilityDate: '2024-07-11',
+  compatibilityDate: '2025-07-11',
 
   nitro: {
+    devStorage: {
+      'cache:nuxt:payload': {
+        driver: 'memory',
+      },
+    },
     prerender: {
       routes: [
         '/',
@@ -50,12 +51,20 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    optimizeDeps: {
+      include: [
+        'nuxt > @nuxt/devtools > @vue/devtools-core',
+        'nuxt > @nuxt/devtools > @vue/devtools-kit',
+      ],
+    },
+  },
+
   typescript: {
     strict: false,
   },
 
   hooks: {
-    // Define `@nuxt/ui` components as global to use them in `.md` (feel free to add those you need)
     'components:extend': (components) => {
       const globals = components.filter(c => ['UButton', 'UIcon'].includes(c.pascalName))
 
@@ -82,11 +91,15 @@ export default defineNuxtConfig({
   },
 
   twoslash: {
+    compilerOptions: {
+      baseUrl: '.',
+    },
     floatingVueOptions: {
       classMarkdown: 'prose prose-primary dark:prose-invert',
     },
-    // Do not throw when twoslash fails, the typecheck should be down in github.com/nuxt/nuxt's CI
     throws: false,
     includeNuxtTypes: true,
   },
+
+  ogImage: { zeroRuntime: true },
 })

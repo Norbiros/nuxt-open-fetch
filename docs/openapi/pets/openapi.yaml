@@ -207,12 +207,12 @@ paths:
         '200':
           description: successful operation
           content:
-            application/xml:
+            application/x.petstore.pet+json;version=1:
               schema:
-                $ref: '#/components/schemas/Pet'
-            application/json:
+                $ref: '#/components/schemas/PetV1'
+            application/x.petstore.pet+json;version=2:
               schema:
-                $ref: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/PetV2'
         '400':
           description: Invalid ID supplied
         '404':
@@ -757,6 +757,28 @@ components:
             - sold
       xml:
         name: pet
+    PetV1:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    PetV2:
+      required:
+        - id
+        - displayName
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        displayName:
+          type: string
     ApiResponse:
       type: object
       properties:

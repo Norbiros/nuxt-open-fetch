@@ -70,7 +70,8 @@ export default defineNuxtModule<ModuleOptions>({
     for (const layer of nuxt.options._layers) {
       const { rootDir, openFetch } = layer.config
       const schemasDir = resolve(rootDir, 'openapi')
-      const layerClients = Object.entries(options.clients).filter(([key]) => openFetch?.clients?.[key])
+      const layerClients = Object.entries(options.clients)
+        .filter(([key]) => openFetch && typeof openFetch === 'object' && openFetch.clients?.[key])
 
       if (nuxt.options.dev) {
         nuxt.options.watch.push(schemasDir)
@@ -125,8 +126,8 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.optimization.keyedComposables = [
       ...nuxt.options.optimization.keyedComposables,
       ...schemas.flatMap(({ fetchName }) => [
-        { name: fetchName.composable, argumentLength: 3 },
-        { name: fetchName.lazyComposable, argumentLength: 3 },
+        { name: fetchName.composable, source: '#open-fetch', argumentLength: 3 },
+        { name: fetchName.lazyComposable, source: '#open-fetch', argumentLength: 3 },
       ]),
     ]
 

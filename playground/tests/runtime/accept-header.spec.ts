@@ -5,7 +5,7 @@ describe('accept header runtime behavior', async () => {
   await setup({
     server: true,
     browser: false,
-    port: 3000,
+    port: 33000,
   })
 
   const { $api } = useNuxtApp()

@@ -5,7 +5,7 @@ describe('body serializer', async () => {
   await setup({
     server: true,
     browser: false,
-    port: 3000,
+    port: 33000,
   })
 
   it('serializes the body with $[client]', async () => {
