@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 // https://nuxt.com/docs/4.x/getting-started/testing#setup
 export default defineConfig({
   test: {
+    fileParallelism: false,
     projects: [
       await defineVitestProject({
         test: {
