@@ -1,4 +1,4 @@
-import type { paths } from '#open-fetch-schemas/api'
+import type { paths, SchemaPet } from '#open-fetch-schemas/api'
 import type { NitroApp as NitroAppMain } from 'nitropack'
 import type { NitroApp as NitroAppCompat } from 'nitropack/types'
 import type { Ref } from 'vue'
@@ -42,6 +42,8 @@ interface ReturnDataV2 {
     email?: string
   }
 }
+
+expectTypeOf<SchemaPet>().toEqualTypeOf<ReturnData>()
 
 describe('$[client]', async () => {
   const $pets = createOpenFetch<paths>({})

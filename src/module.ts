@@ -57,6 +57,11 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt: '>=3.0.0',
     },
   },
+  defaults: {
+    openAPITS: {
+      rootTypes: true,
+    },
+  },
   async setup(options, nuxt) {
     if (!options.clients)
       return
