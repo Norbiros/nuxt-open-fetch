@@ -81,7 +81,6 @@
     "ofetch": "^1.5.1"
   },
   "resolutions": {
-    "@norbiros/nuxt-open-fetch": "workspace:*",
-    "h3": "^1.15.4"
+    "@norbiros/nuxt-open-fetch": "workspace:*"
   }
 }
