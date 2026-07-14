@@ -61,6 +61,9 @@ export type UseOpenFetchClient<Paths, Lazy> = <
     : UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>,
 ) => AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
 
+/**
+ * @deprecated Use Nuxt's `createUseFetch` instead. Generated clients use it on Nuxt >= 4.4.0.
+ */
 export function createUseOpenFetch<
   Paths,
   Lazy = false,

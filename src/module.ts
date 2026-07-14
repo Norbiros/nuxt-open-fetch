@@ -13,6 +13,7 @@ import {
   addTypeTemplate,
   createResolver,
   defineNuxtModule,
+  hasNuxtCompatibility,
 } from '@nuxt/kit'
 import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
@@ -63,6 +64,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const { resolve } = createResolver(import.meta.url)
     const schemas: ResolvedSchema[] = []
+    const supportsCreateUseFetch = await hasNuxtCompatibility({ nuxt: '>=4.4.0' }, nuxt)
 
     nuxt.options.runtimeConfig.public.openFetch = Object.fromEntries(Object.entries(options.clients)
       .map(([key, { schema: _, ...options }]) => [key, options])) as any
@@ -219,7 +221,11 @@ export {}
       filename: `${moduleName}.ts`,
       getContents() {
         return `
-import { createUseOpenFetch } from '#open-fetch-use-fetch'
+${supportsCreateUseFetch
+  ? `import type { UseOpenFetchClient } from '#open-fetch-use-fetch'
+import { createUseFetch } from '#app/composables/fetch'
+import { useNuxtApp } from 'nuxt/app'`
+  : `import { createUseOpenFetch } from '#open-fetch-use-fetch'`}
 ${schemas.map(({ name }) => `
 import type { paths as ${pascalCase(name)}Paths, operations as ${pascalCase(name)}Operations } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
@@ -235,7 +241,9 @@ ${schemas.map(({ name, fetchName }) => `
  *
  * @see https://nuxt-open-fetch.norbiros.dev/composables/useclient
  */
-export const ${fetchName.composable} = createUseOpenFetch<${pascalCase(name)}Paths>('${name}')
+export const ${fetchName.composable} = ${supportsCreateUseFetch
+  ? `createUseFetch(options => ({ $fetch: useNuxtApp().$${name} as typeof $fetch, ...options })) as UseOpenFetchClient<${pascalCase(name)}Paths, false>`
+  : `createUseOpenFetch<${pascalCase(name)}Paths>('${name}')`}
 /**
  * Lazily fetch data from an OpenAPI endpoint with an SSR-friendly composable.
  *
@@ -244,7 +252,9 @@ export const ${fetchName.composable} = createUseOpenFetch<${pascalCase(name)}Pat
  *
  * @see https://nuxt-open-fetch.norbiros.dev/composables/uselazyclient
  */
-export const ${fetchName.lazyComposable} = createUseOpenFetch<${pascalCase(name)}Paths>('${name}', true)
+export const ${fetchName.lazyComposable} = ${supportsCreateUseFetch
+  ? `createUseFetch(options => ({ $fetch: useNuxtApp().$${name} as typeof $fetch, ...options, lazy: true })) as UseOpenFetchClient<${pascalCase(name)}Paths, true>`
+  : `createUseOpenFetch<${pascalCase(name)}Paths>('${name}', true)`}
 
 export type ${pascalCase(name)}Response<T extends keyof ${pascalCase(name)}Operations, R extends keyof ${pascalCase(name)}Operations[T]['responses'] & number = Extract<keyof ${pascalCase(name)}Operations[T]['responses'] & number, 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226>> = ${pascalCase(name)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } }
   ? U
