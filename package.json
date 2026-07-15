@@ -49,7 +49,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "docs": "pnpm dev:prepare && nuxt dev docs --uiDev",
-    "docs:build": "pnpm dev:prepare && nuxt build docs",
+    "docs:build": "pnpm dev:prepare && pnpm --dir docs build",
     "release": "pnpm lint && pnpm test && pnpm typecheck && pnpm prepack && changelogen --release && pnpm publish && git push --follow-tags",
     "release:major": "pnpm lint && pnpm test && pnpm typecheck && pnpm prepack && changelogen --release --major && pnpm publish && git push --follow-tags",
     "lint": "eslint .",

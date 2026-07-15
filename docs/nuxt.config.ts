@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    'nuxt-content-twoslash',
     '@nuxt/ui',
     '@nuxt/content',
     '@nuxt/eslint',
@@ -79,14 +78,5 @@ export default defineNuxtConfig({
         baseURL: '/petsProxy',
       },
     },
-  },
-
-  twoslash: {
-    floatingVueOptions: {
-      classMarkdown: 'prose prose-primary dark:prose-invert',
-    },
-    // Do not throw when twoslash fails, the typecheck should be down in github.com/nuxt/nuxt's CI
-    throws: false,
-    includeNuxtTypes: true,
   },
 })
