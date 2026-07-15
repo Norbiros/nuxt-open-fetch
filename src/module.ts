@@ -225,6 +225,7 @@ export {}
       getContents() {
         return `
 import { createUseOpenFetch } from '#open-fetch-use-fetch'
+import type { OpenFetchOptions } from '#imports'
 ${schemas.map(({ name }) => `
 import type { paths as ${pascalCase(name)}Paths, operations as ${pascalCase(name)}Operations } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
@@ -250,6 +251,8 @@ export const ${fetchName.composable} = createUseOpenFetch<${pascalCase(name)}Pat
  * @see https://nuxt-open-fetch.norbiros.dev/composables/uselazyclient
  */
 export const ${fetchName.lazyComposable} = createUseOpenFetch<${pascalCase(name)}Paths>('${name}', true)
+
+export type ${pascalCase(name)}FetchOptions<Path extends Extract<keyof ${pascalCase(name)}Paths, string>> = OpenFetchOptions<${pascalCase(name)}Paths, Path>
 
 export type ${pascalCase(name)}Response<T extends keyof ${pascalCase(name)}Operations, R extends keyof ${pascalCase(name)}Operations[T]['responses'] & number = Extract<keyof ${pascalCase(name)}Operations[T]['responses'] & number, 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226>> = ${pascalCase(name)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } }
   ? U
