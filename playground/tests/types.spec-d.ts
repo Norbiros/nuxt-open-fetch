@@ -1,4 +1,5 @@
-import type { paths, SchemaPet } from '#open-fetch-schemas/api'
+import type { ApiFetchOptions } from '#open-fetch'
+import type { paths as ApiPaths, paths, SchemaPet } from '#open-fetch-schemas/api'
 import type { NitroApp as NitroAppMain } from 'nitropack'
 import type { NitroApp as NitroAppCompat } from 'nitropack/types'
 import type { Ref } from 'vue'
@@ -43,7 +44,53 @@ interface ReturnDataV2 {
   }
 }
 
+type ApiPath = Extract<keyof ApiPaths, string>
+
+interface FormProps<Path extends ApiPath> {
+  path: Path
+  options: ApiFetchOptions<Path>
+}
+
 expectTypeOf<SchemaPet>().toEqualTypeOf<ReturnData>()
+
+describe('FetchOptions helper', () => {
+  it('types path and options together in generic component props', () => {
+    const props: FormProps<'/pet/{petId}'> = {
+      path: '/pet/{petId}',
+      options: {
+        path: { petId: 1 },
+      },
+    }
+
+    expectTypeOf(props).toExtend<FormProps<'/pet/{petId}'>>()
+  })
+
+  it('matches options to the path method', () => {
+    const getOptions: ApiFetchOptions<'/pet/{petId}'> = {
+      path: { petId: 1 },
+    }
+    const postOptions: ApiFetchOptions<'/pet'> = {
+      method: 'POST',
+      body: {
+        name: 'doggie',
+        photoUrls: [],
+      },
+    }
+
+    expectTypeOf(getOptions).toExtend<ApiFetchOptions<'/pet/{petId}'>>()
+    expectTypeOf(postOptions).toExtend<ApiFetchOptions<'/pet'>>()
+  })
+
+  it('rejects methods and bodies that do not match the path', () => {
+    // @ts-expect-error This path only supports GET.
+    const invalidMethod: ApiFetchOptions<'/pet/findByStatus'> = { method: 'post' }
+    // @ts-expect-error POST requests to this path require a Pet body.
+    const missingBody: ApiFetchOptions<'/pet'> = { method: 'post' }
+
+    void invalidMethod
+    void missingBody
+  })
+})
 
 describe('$[client]', async () => {
   const $pets = createOpenFetch<paths>({})

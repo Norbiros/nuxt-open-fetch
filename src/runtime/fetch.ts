@@ -42,7 +42,7 @@ export type ExtractMediaType<T> = ResponseObjectMap<T> extends Record<string | n
   ? { [S in OkStatus]: Extract<keyof ResponseContent<ResponseObjectMap<T>[S]>, MediaType> }[OkStatus]
   : never
 
-type OpenFetchOptions<
+type OpenFetchMethodOptions<
   Method,
   LowercasedMethod,
   Params,
@@ -58,6 +58,17 @@ type OpenFetchOptions<
   & Omit<FetchOptions, 'query' | 'body' | 'method'>
   & BodySerializerOption<RequestBodyOption<Operation>['body']>
 
+export type OpenFetchOptions<Paths, ReqT extends Extract<keyof Paths, string>> = ReqT extends Extract<keyof Paths, string>
+  ? {
+      [Method in Extract<keyof FilterMethods<Paths[ReqT]>, string>]: OpenFetchMethodOptions<
+        Method | Uppercase<Method>,
+        Method,
+        FilterMethods<Paths[ReqT]>,
+        ExtractMediaType<FilterMethods<Paths[ReqT]>[Method]>
+      >
+    }[Extract<keyof FilterMethods<Paths[ReqT]>, string>]
+  : never
+
 export type OpenFetchClient<Paths> = <
   ReqT extends Extract<keyof Paths, string>,
   Methods extends FilterMethods<Paths[ReqT]>,
@@ -68,7 +79,7 @@ export type OpenFetchClient<Paths> = <
   ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
 >(
   url: ReqT,
-  options?: OpenFetchOptions<Method, LowercasedMethod, Methods, Media>,
+  options?: OpenFetchMethodOptions<Method, LowercasedMethod, Methods, Media>,
 ) => Promise<ResT>
 
 // More flexible way to rewrite the request path,
