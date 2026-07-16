@@ -1,16 +1,35 @@
-import { setup } from '@nuxt/test-utils'
-import { describe, expect, it } from 'vitest'
+import { registerEndpoint } from '@nuxt/test-utils/runtime'
+import { describe, expect, it, vi } from 'vitest'
 
-describe('accept header runtime behavior', async () => {
-  await setup({
-    server: true,
-    browser: false,
-    port: 3000,
+describe('accept header runtime behavior', () => {
+  let returnV2 = false
+
+  registerEndpoint('/pet/1', () => {
+    const basePet = {
+      id: 1,
+      name: 'doggie',
+      photoUrls: [],
+      status: 'available',
+    }
+
+    if (returnV2) {
+      return {
+        ...basePet,
+        breed: 'Labrador',
+        age: 3,
+        owner: {
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+      }
+    }
+
+    return basePet
   })
 
-  const { $api } = useNuxtApp()
-
   it('sends correct Accept header and receives v1 response', async () => {
+    returnV2 = false
+    const { $api } = useNuxtApp()
     const response = await $api('/pet/{petId}', {
       path: { petId: 1 },
       accept: 'application/json',
@@ -26,6 +45,8 @@ describe('accept header runtime behavior', async () => {
   })
 
   it('sends v1 media type and receives v1 response', async () => {
+    returnV2 = false
+    const { $api } = useNuxtApp()
     const response = await $api('/pet/{petId}', {
       path: { petId: 1 },
       accept: 'application/vnd.petstore.v1+json',
@@ -39,6 +60,9 @@ describe('accept header runtime behavior', async () => {
   })
 
   it('sends v2 media type and receives v2 response', async () => {
+    returnV2 = true
+    const { $api } = useNuxtApp()
+    const fetchSpy = vi.spyOn(globalThis, '$fetch')
     const response = await $api('/pet/{petId}', {
       path: { petId: 1 },
       accept: 'application/vnd.petstore.v2+json',
@@ -57,9 +81,16 @@ describe('accept header runtime behavior', async () => {
       name: 'John Doe',
       email: 'john@example.com',
     })
+    expect(fetchSpy.mock.calls.some(([, options]) =>
+      new Headers(options?.headers).get('accept') === 'application/vnd.petstore.v2+json',
+    )).toBe(true)
+    fetchSpy.mockRestore()
   })
 
   it('sends multiple accept types with preference order', async () => {
+    returnV2 = true
+    const { $api } = useNuxtApp()
+    const fetchSpy = vi.spyOn(globalThis, '$fetch')
     const response = await $api('/pet/{petId}', {
       path: { petId: 1 },
       accept: ['application/vnd.petstore.v2+json', 'application/vnd.petstore.v1+json'],
@@ -68,5 +99,10 @@ describe('accept header runtime behavior', async () => {
     expect(response).toHaveProperty('breed')
     expect(response).toHaveProperty('age')
     expect(response).toHaveProperty('owner')
+    const acceptHeaders = fetchSpy.mock.calls
+      .map(([, options]) => new Headers(options?.headers).get('accept'))
+      .filter(Boolean)
+    expect(acceptHeaders[0]).toBe('application/vnd.petstore.v2+json, application/vnd.petstore.v1+json')
+    fetchSpy.mockRestore()
   })
 })

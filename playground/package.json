@@ -11,8 +11,9 @@
     "nuxt-open-fetch": "latest"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.20.1",
-    "nuxt": "^4.2.1",
-    "vitest": "^3.2.4"
+    "@nuxt/test-utils": "^4.0.3",
+    "@vue/test-utils": "^2.4.6",
+    "nuxt": "^4.4.8",
+    "vitest": "^4.1.10"
   }
 }

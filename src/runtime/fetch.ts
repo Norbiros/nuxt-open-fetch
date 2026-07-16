@@ -1,7 +1,5 @@
 import type { RuntimeNuxtHooks } from '#app'
 import type { OpenFetchClientName } from '#build/open-fetch'
-import type { ClientFetchHooks, GlobalFetchHooks } from '#build/types/open-fetch-hooks'
-import type { Hookable } from 'hookable'
 import type { FetchContext, FetchError, FetchHooks, FetchOptions } from 'ofetch'
 import type {
   ErrorResponse,
@@ -13,7 +11,11 @@ import type {
   SuccessResponse,
 } from 'openapi-typescript-helpers'
 
-type Hooks = Hookable<GlobalFetchHooks & ClientFetchHooks> | null
+interface OpenFetchHooks {
+  callHook: (name: any, ...args: any[]) => any
+}
+
+type Hooks = OpenFetchHooks | null
 
 export type FetchResponseData<T extends Record<string | number, any>, Media extends MediaType = MediaType> = SuccessResponse<ResponseObjectMap<T>, Media>
 export type FetchResponseError<T extends Record<string | number, any>> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
@@ -131,7 +133,7 @@ export function createOpenFetch<Paths>(
   options: FetchOptions | ((options: FetchOptions) => FetchOptions),
   localFetch?: typeof globalThis.$fetch,
   hookIdentifier?: string,
-  hooks: Hookable<any> | null = null,
+  hooks: OpenFetchHooks | null = null,
 ): OpenFetchClient<Paths> {
   return (url: string, baseOpts: any) => {
     baseOpts = typeof options === 'function'

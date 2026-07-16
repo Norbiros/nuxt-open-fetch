@@ -73,7 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
       .map(([key, { schema: _, ...options }]) => [key, options])) as any
 
     for (const layer of nuxt.options._layers) {
-      const { rootDir, openFetch } = layer.config
+      const { rootDir, openFetch } = layer.config as typeof layer.config & { openFetch?: ModuleOptions }
       const schemasDir = resolve(rootDir, 'openapi')
       const layerClients = Object.entries(options.clients).filter(([key]) => openFetch?.clients?.[key])
 
@@ -128,11 +128,13 @@ export default defineNuxtModule<ModuleOptions>({
       keyedComposables: [],
     }
 
+    const clientSource = resolve(nuxt.options.buildDir, `${moduleName}.ts`)
+
     nuxt.options.optimization.keyedComposables = [
       ...nuxt.options.optimization.keyedComposables,
       ...schemas.flatMap(({ fetchName }) => [
-        { name: fetchName.composable, argumentLength: 3 },
-        { name: fetchName.lazyComposable, argumentLength: 3 },
+        { name: fetchName.composable, source: clientSource, argumentLength: 3 },
+        { name: fetchName.lazyComposable, source: clientSource, argumentLength: 3 },
       ]),
     ]
 
@@ -153,7 +155,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     addImportsSources({
-      from: resolve(nuxt.options.buildDir, `${moduleName}.ts`),
+      from: clientSource,
       imports: schemas.flatMap(({ fetchName }) => Object.values(fetchName)),
     })
 
