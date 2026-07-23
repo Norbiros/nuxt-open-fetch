@@ -9,7 +9,21 @@ export default defineConfig({
       await defineVitestProject({
         test: {
           name: 'nuxt',
+          include: ['tests/runtime/**/*.spec.ts'],
           environment: 'nuxt',
+          environmentOptions: {
+            nuxt: {
+              overrides: {
+                openFetch: {
+                  clients: {
+                    api: {
+                      baseURL: '',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       }),
       {

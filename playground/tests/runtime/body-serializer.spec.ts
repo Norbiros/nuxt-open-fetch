@@ -1,12 +1,8 @@
-import { setup } from '@nuxt/test-utils'
+import { registerEndpoint } from '@nuxt/test-utils/runtime'
 import { describe, expect, it, vi } from 'vitest'
 
-describe('body serializer', async () => {
-  await setup({
-    server: true,
-    browser: false,
-    port: 3000,
-  })
+describe('body serializer', () => {
+  registerEndpoint('/pet', () => ({ id: 1 }))
 
   it('serializes the body with $[client]', async () => {
     const { $api } = useNuxtApp()
