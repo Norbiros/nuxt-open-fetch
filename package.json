@@ -54,7 +54,7 @@
     "release:major": "pnpm lint && pnpm test && pnpm typecheck && pnpm prepack && changelogen --release --major && pnpm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "cd playground/ && vitest run",
+    "test": "pnpm dev:build && cd playground/ && vitest run",
     "test:watch": "cd playground/ && vitest watch",
     "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
