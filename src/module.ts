@@ -13,6 +13,7 @@ import {
   addTypeTemplate,
   createResolver,
   defineNuxtModule,
+  getNuxtVersion,
 } from '@nuxt/kit'
 import { hash } from 'ohash'
 import openapiTS, { astToString } from 'openapi-typescript'
@@ -122,6 +123,12 @@ export default defineNuxtModule<ModuleOptions>({
       '#open-fetch': join(nuxt.options.buildDir, moduleName),
       '#open-fetch-use-fetch': resolve('runtime/useFetch'),
       '#open-fetch-schemas/*': join(nuxt.options.buildDir, 'types', moduleName, 'schemas', '*'),
+    }
+    nuxt.options.nitro.alias = {
+      ...nuxt.options.nitro.alias,
+      '#open-fetch-nitro-runtime-config': Number.parseInt(getNuxtVersion(nuxt), 10) >= 5
+        ? 'nitro/runtime-config'
+        : 'nitropack/runtime',
     }
 
     nuxt.options.optimization = nuxt.options.optimization || {
