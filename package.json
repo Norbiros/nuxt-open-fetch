@@ -55,7 +55,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm dev:build && cd playground/ && vitest run",
-    "test:watch": "cd playground/ && vitest watch",
+    "test:watch": "cd playground/ && vitest watch --project=nuxt --project=types",
     "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
