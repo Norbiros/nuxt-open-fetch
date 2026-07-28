@@ -164,8 +164,8 @@ export default defineNuxtModule<ModuleOptions>({
       imports: [
         'createOpenFetch',
         'openFetchRequestInterceptor',
-        'OpenFetchClient',
-        'OpenFetchOptions',
+        { name: 'OpenFetchClient', type: true },
+        { name: 'OpenFetchOptions', type: true },
       ],
     })
 
@@ -173,7 +173,7 @@ export default defineNuxtModule<ModuleOptions>({
       from: resolve(`runtime/useFetch`),
       imports: [
         'createUseOpenFetch',
-        'UseOpenFetchClient',
+        { name: 'UseOpenFetchClient', type: true },
       ],
     })
 
@@ -185,6 +185,7 @@ export default defineNuxtModule<ModuleOptions>({
     addServerImports([{
       name: 'OpenFetchClient',
       from: resolve('runtime/fetch'),
+      type: true,
     }])
 
     addTypeTemplate({

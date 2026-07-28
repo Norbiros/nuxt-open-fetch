@@ -3,7 +3,6 @@ import type { paths as ApiPaths, paths, SchemaPet } from '#open-fetch-schemas/ap
 import type { NitroApp as NitroAppMain } from 'nitropack'
 import type { NitroApp as NitroAppCompat } from 'nitropack/types'
 import type { Ref } from 'vue'
-import type { OpenFetchClient } from '../../src/runtime/fetch'
 import { describe, expectTypeOf, it } from 'vitest'
 import { createOpenFetch } from '../../src/runtime/fetch'
 import { createUseOpenFetch } from '../../src/runtime/useFetch'
@@ -52,6 +51,14 @@ interface FormProps<Path extends ApiPath> {
 }
 
 expectTypeOf<SchemaPet>().toEqualTypeOf<ReturnData>()
+
+describe('auto-imported types', () => {
+  it('exposes the Open Fetch client types', () => {
+    expectTypeOf<OpenFetchClient<paths>>().toBeFunction()
+    expectTypeOf<OpenFetchOptions<paths, '/pet/{petId}'>>().not.toBeNever()
+    expectTypeOf<UseOpenFetchClient<paths, false>>().toBeFunction()
+  })
+})
 
 describe('FetchOptions helper', () => {
   it('types path and options together in generic component props', () => {
