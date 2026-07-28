@@ -40,7 +40,6 @@ export default defineConfig({
         test: {
           name: 'build',
           include: ['tests/build/**/*.spec.ts'],
-          environment: 'node',
         },
       },
     ],
