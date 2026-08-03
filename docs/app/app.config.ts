@@ -4,52 +4,27 @@ export default defineAppConfig({
       primary: 'green',
       neutral: 'slate',
     },
-    footer: {
-      slots: {
-        root: 'border-t border-default',
-        left: 'text-sm text-muted',
-      },
-    },
   },
   seo: {
-    siteName: 'Nuxt Open Fetch',
+    description: 'Generate zero-overhead, 100% typed OpenAPI fetch clients for Nuxt.',
   },
   header: {
-    logo: {
-      alt: '',
-      light: '',
-      dark: '',
-    },
-    search: true,
-    colorMode: true,
-    links: [{
-      'icon': 'i-simple-icons-github',
-      'to': 'https://github.com/Norbiros/nuxt-open-fetch',
-      'target': '_blank',
-      'aria-label': 'Nuxt Open Fetch',
-    }],
+    title: 'Nuxt Open Fetch',
   },
-  footer: {
-    credits: `Copyright © 2023 - ${new Date().getFullYear()}`,
-    colorMode: false,
-    links: [{
-      'icon': 'i-simple-icons-nuxtdotjs',
-      'to': 'https://nuxt.com',
-      'target': '_blank',
-      'aria-label': 'Nuxt Website',
-    }, {
-      'icon': 'i-simple-icons-github',
-      'to': 'https://github.com/Norbiros/nuxt-open-fetch',
-      'target': '_blank',
-      'aria-label': 'Nuxt Open Fetch',
-    }],
+  github: {
+    url: 'https://github.com/Norbiros/nuxt-open-fetch',
+    branch: 'main',
+    rootDir: 'docs',
+  },
+  socials: {
+    nuxtdotjs: 'https://nuxt.com',
   },
   toc: {
-    title: 'Table of Contents',
+    title: 'On this page',
     bottom: {
       title: 'Useful Links',
       links: [{
-        icon: 'i-heroicons-star',
+        icon: 'i-simple-icons-github',
         label: 'Star on GitHub',
         to: 'https://github.com/Norbiros/nuxt-open-fetch',
         target: '_blank',
@@ -64,7 +39,7 @@ export default defineAppConfig({
         to: 'https://nuxt.com',
         target: '_blank',
       }, {
-        icon: 'i-lucide-puzzle',
+        icon: 'i-simple-icons-stackblitz',
         label: 'Playground',
         to: 'https://stackblitz.com/github/Norbiros/nuxt-open-fetch/tree/main/playground?file=app.vue',
         target: '_blank',

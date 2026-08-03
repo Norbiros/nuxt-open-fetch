@@ -1,12 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  extends: ['docus'],
+
   modules: [
-    '@nuxt/ui',
-    '@nuxt/content',
-    '@nuxt/eslint',
-    '@nuxt/fonts',
-    '@nuxt/image',
-    'nuxt-og-image',
     'nuxt-open-fetch',
   ],
 
@@ -14,62 +10,29 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
-  css: ['~/assets/css/main.css'],
-
   site: {
+    name: 'Nuxt Open Fetch',
     url: 'https://nuxt-open-fetch.norbiros.dev',
   },
 
-  colorMode: {
-    disableTransition: true,
+  llms: {
+    domain: 'https://nuxt-open-fetch.norbiros.dev',
+    title: 'Nuxt Open Fetch',
+    description: 'Generate zero-overhead, 100% typed OpenAPI fetch clients for Nuxt.',
   },
 
-  content: {
-    build: {
-      markdown: {
-        toc: {
-          searchDepth: 1,
-        },
-      },
+  icon: {
+    clientBundle: {
+      icons: [
+        'heroicons:rocket-launch',
+        'heroicons:code-bracket-square',
+        'heroicons:command-line',
+        'heroicons:cog-6-tooth',
+      ],
     },
-  },
-
-  future: {
-    compatibilityVersion: 4,
   },
 
   compatibilityDate: '2024-07-11',
-
-  nitro: {
-    prerender: {
-      routes: [
-        '/',
-      ],
-      crawlLinks: true,
-    },
-  },
-
-  typescript: {
-    strict: false,
-  },
-
-  hooks: {
-    // Define `@nuxt/ui` components as global to use them in `.md` (feel free to add those you need)
-    'components:extend': (components) => {
-      const globals = components.filter(c => ['UButton', 'UIcon'].includes(c.pascalName))
-
-      globals.forEach(c => c.global = true)
-    },
-  },
-
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs',
-      },
-    },
-  },
 
   openFetch: {
     disableNitroPlugin: true,
