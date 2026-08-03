@@ -1,6 +1,6 @@
 ---
 seo:
-  title: Nuxt Open Fetch
+  title: OpenAPI fetch for Nuxt
   description: Generate zero-overhead, 100% typed OpenAPI fetch for Nuxt
   navigation: false
 ---
@@ -9,11 +9,8 @@ seo:
 ---
 orientation: horizontal
 ---
-  ::prose-pre
-  ```ts twoslash
-  // @noErrors
+  ```ts
   const { data } = await usePets('/pet/{petId}', {
-  //                                          ^|
     path: {
       petId: 2
     },
@@ -28,7 +25,6 @@ orientation: horizontal
     lazy: true
   })
   ```
-  ::
 
 #title
 OpenAPI fetch<br/>for Nuxt
@@ -41,7 +37,7 @@ Generate zero-overhead, 100% typed OpenAPI fetch clients
   ---
   size: lg
   to: /setup/quick-start
-  trailing-icon: i-heroicons-arrow-right-20-solid
+  trailing-icon: i-lucide-arrow-right
   ---
   Get started
   :::
