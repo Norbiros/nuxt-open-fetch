@@ -1,6 +1,6 @@
 import type { RuntimeNuxtHooks } from '#app'
 import type { OpenFetchClientName } from '#build/open-fetch'
-import type { FetchContext, FetchError, FetchHooks, FetchOptions } from 'ofetch'
+import type { FetchContext, FetchError, FetchHooks, FetchOptions, FetchResponse } from 'ofetch'
 import type {
   ErrorResponse,
   MediaType,
@@ -44,45 +44,75 @@ export type ExtractMediaType<T> = ResponseObjectMap<T> extends Record<string | n
   ? { [S in OkStatus]: Extract<keyof ResponseContent<ResponseObjectMap<T>[S]>, MediaType> }[OkStatus]
   : never
 
-type OpenFetchMethodOptions<
-  Method,
-  LowercasedMethod,
-  Params,
+type MethodsOf<Paths, Path extends keyof Paths> = FilterMethods<Paths[Path]>
+
+export type OpenFetchMethod<Paths, Path extends keyof Paths>
+  = Extract<keyof MethodsOf<Paths, Path>, string> | Uppercase<Extract<keyof MethodsOf<Paths, Path>, string>>
+
+export type OpenFetchOperation<Paths, Path extends keyof Paths, Method extends string, Methods = MethodsOf<Paths, Path>>
+  = 'get' extends Lowercase<Method>
+    ? ('get' extends keyof Methods ? Methods['get'] : never)
+    : (Lowercase<Method> extends keyof Methods ? Methods[Lowercase<Method>] : never)
+
+export type OpenFetchData<Paths, Path extends keyof Paths, Method extends string, Media>
+  = OpenFetchOperation<Paths, Path, Method> extends Record<string | number, any>
+    ? FetchResponseData<OpenFetchOperation<Paths, Path, Method>, Media & MediaType>
+    : never
+
+export type OpenFetchError<Paths, Path extends keyof Paths, Method extends string>
+  = OpenFetchOperation<Paths, Path, Method> extends Record<string | number, any>
+    ? FetchResponseError<OpenFetchOperation<Paths, Path, Method>>
+    : never
+
+export type OpenFetchMediaType<Paths, Path extends keyof Paths, Method extends string>
+  = ExtractMediaType<OpenFetchOperation<Paths, Path, Method>>
+
+export type OpenFetchRequestOptions<
+  Paths,
+  Path extends keyof Paths,
+  Method extends string,
   Media,
-  Operation = 'get' extends LowercasedMethod
-    ? ('get' extends keyof Params ? Params['get'] : never)
-    : (LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never),
+  Operation = OpenFetchOperation<Paths, Path, Method>,
 >
-  = MethodOption<Method, Params>
+  = MethodOption<Method, MethodsOf<Paths, Path>>
   & ParamsOption<Operation>
   & RequestBodyOption<Operation>
   & AcceptMediaTypeOption<Media>
-  & Omit<FetchOptions, 'query' | 'body' | 'method'>
   & BodySerializerOption<RequestBodyOption<Operation>['body']>
+  & Omit<FetchOptions, 'query' | 'body' | 'method'>
 
 export type OpenFetchOptions<Paths, ReqT extends Extract<keyof Paths, string>> = ReqT extends Extract<keyof Paths, string>
   ? {
-      [Method in Extract<keyof FilterMethods<Paths[ReqT]>, string>]: OpenFetchMethodOptions<
+      [Method in Extract<keyof MethodsOf<Paths, ReqT>, string>]: OpenFetchRequestOptions<
+        Paths,
+        ReqT,
         Method | Uppercase<Method>,
-        Method,
-        FilterMethods<Paths[ReqT]>,
-        ExtractMediaType<FilterMethods<Paths[ReqT]>[Method]>
+        OpenFetchMediaType<Paths, ReqT, Method>
       >
-    }[Extract<keyof FilterMethods<Paths[ReqT]>, string>]
+    }[Extract<keyof MethodsOf<Paths, ReqT>, string>]
   : never
 
-export type OpenFetchClient<Paths> = <
-  ReqT extends Extract<keyof Paths, string>,
-  Methods extends FilterMethods<Paths[ReqT]>,
-  Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
-  LowercasedMethod extends (Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never),
-  DefaultMethod extends ('get' extends LowercasedMethod ? 'get' : LowercasedMethod),
-  Media extends ExtractMediaType<Methods[DefaultMethod]>,
-  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
->(
-  url: ReqT,
-  options?: OpenFetchMethodOptions<Method, LowercasedMethod, Methods, Media>,
-) => Promise<ResT>
+export type OpenFetchCreateOptions = Omit<FetchOptions, 'body' | 'method' | 'parseResponse' | 'responseType'>
+
+export interface OpenFetchClient<Paths> {
+  <
+    Path extends Extract<keyof Paths, string>,
+    Method extends OpenFetchMethod<Paths, Path>,
+    Media extends OpenFetchMediaType<Paths, Path, Method>,
+  >(
+    url: Path,
+    options?: OpenFetchRequestOptions<Paths, Path, Method, Media>,
+  ): Promise<OpenFetchData<Paths, Path, Method, Media>>
+  raw: <
+    Path extends Extract<keyof Paths, string>,
+    Method extends OpenFetchMethod<Paths, Path>,
+    Media extends OpenFetchMediaType<Paths, Path, Method>,
+  >(
+    url: Path,
+    options?: OpenFetchRequestOptions<Paths, Path, Method, Media>,
+  ) => Promise<FetchResponse<OpenFetchData<Paths, Path, Method, Media>>>
+  create: (defaults: OpenFetchCreateOptions) => OpenFetchClient<Paths>
+}
 
 // More flexible way to rewrite the request path,
 // but has problems - https://github.com/unjs/ofetch/issues/319
@@ -91,27 +121,10 @@ export function openFetchRequestInterceptor(ctx: FetchContext) {
   ctx.request = fillPath(ctx.request as string, (ctx.options).path)
 }
 
-function createHook<T extends keyof FetchHooks>(hooks: NonNullable<Hooks>, baseOpts: FetchOptions, hook: T, hookIdentifier?: OpenFetchClientName) {
-  // @ts-ignore
-  return async (...args: Parameters<RuntimeNuxtHooks[`openFetch:${T}`]>) => {
-    await hooks.callHook(`openFetch:${hook}`, ...args)
-
-    if (hookIdentifier) {
-      await hooks.callHook(`openFetch:${hook}:${hookIdentifier}`, ...args as any)
-    }
-
-    const ctx = args[0]
-    const baseHook = baseOpts[hook]
-
-    if (baseHook) {
-      await (Array.isArray(baseHook)
-        ? Promise.all(baseHook.map(h => h(ctx as any)))
-        : baseHook(ctx as any))
-    }
-  }
-}
-
-function getOpenFetchHooks(hooks: Hooks, baseOpts: FetchOptions, hookIdentifier?: OpenFetchClientName) {
+// Prepends a bridge interceptor calling the Nuxt runtime hooks (`openFetch:onRequest`,
+// `openFetch:onRequest:{client}`, ...) before the user's own interceptors.
+// ofetch >=1.4 runs arrays of interceptors, so no manual chaining is needed.
+function withNuxtHooks(opts: FetchOptions, hooks: Hooks, hookIdentifier?: OpenFetchClientName) {
   const openFetchHooks: Array<keyof FetchHooks> = [
     'onRequest',
     'onRequestError',
@@ -120,13 +133,22 @@ function getOpenFetchHooks(hooks: Hooks, baseOpts: FetchOptions, hookIdentifier?
   ]
 
   if (!hooks)
-    return {} as FetchHooks
+    return
 
-  return openFetchHooks.reduce<FetchHooks>((acc, hook) => {
+  for (const hook of openFetchHooks) {
     // @ts-ignore
-    acc[hook as keyof FetchHooks] = createHook(hooks, baseOpts, hook as keyof FetchHooks, hookIdentifier)
-    return acc
-  }, {} as FetchHooks)
+    const bridge = async (ctx: Parameters<RuntimeNuxtHooks[`openFetch:${typeof hook}`]>[0]) => {
+      await (hooks.callHook as any)(`openFetch:${hook}`, ctx)
+
+      if (hookIdentifier) {
+        await (hooks.callHook as any)(`openFetch:${hook}:${hookIdentifier}`, ctx)
+      }
+    }
+    const userHooks = opts[hook]
+
+    // @ts-ignore
+    opts[hook] = [bridge, ...(Array.isArray(userHooks) ? userHooks : userHooks ? [userHooks] : [])]
+  }
 }
 
 export function createOpenFetch<Paths>(
@@ -135,30 +157,26 @@ export function createOpenFetch<Paths>(
   hookIdentifier?: string,
   hooks: OpenFetchHooks | null = null,
 ): OpenFetchClient<Paths> {
-  return (url: string, baseOpts: any) => {
+  const prepare = (url: string, baseOpts: any) => {
     baseOpts = typeof options === 'function'
       ? options(baseOpts)
-      : {
-          ...options,
-          ...baseOpts,
-        }
+      : mergeFetchOptions(options, baseOpts)
 
     const opts: FetchOptions & {
       path?: Record<string, string>
       accept?: MediaType | MediaType[]
       header: HeadersInit | undefined
       bodySerializer?: (body: any) => any
-    } = {
-      ...baseOpts,
-      ...getOpenFetchHooks(hooks, baseOpts, hookIdentifier as OpenFetchClientName),
-    }
+    } = { ...baseOpts }
+
+    withNuxtHooks(opts, hooks, hookIdentifier as OpenFetchClientName)
 
     if (opts.body && opts.bodySerializer) {
       opts.body = opts.bodySerializer(opts.body)
     }
 
     if (opts.header) {
-      opts.headers = opts.header
+      opts.headers = mergeHeaders(opts.headers, opts.header)
       delete opts.header
     }
 
@@ -175,8 +193,59 @@ export function createOpenFetch<Paths>(
 
     const $fetch = getFetch(url, opts, localFetch)
 
-    return $fetch(fillPath(url, opts?.path), opts as any)
+    return { $fetch, path: fillPath(url, opts?.path), opts }
   }
+
+  const client = (url: string, baseOpts: any) => {
+    const { $fetch, path, opts } = prepare(url, baseOpts)
+    return $fetch(path, opts as any)
+  }
+
+  client.raw = (url: string, baseOpts: any) => {
+    const { $fetch, path, opts } = prepare(url, baseOpts)
+    return $fetch.raw(path, opts as any)
+  }
+
+  client.create = (defaults: OpenFetchCreateOptions) => createOpenFetch<Paths>(
+    typeof options === 'function'
+      ? (callOpts: FetchOptions) => options(mergeFetchOptions(defaults, callOpts))
+      : mergeFetchOptions(options, defaults),
+    localFetch,
+    hookIdentifier,
+    hooks,
+  )
+
+  return client as OpenFetchClient<Paths>
+}
+
+function mergeFetchOptions(defaults: FetchOptions = {}, input: FetchOptions = {}): FetchOptions {
+  const options = { ...defaults, ...input }
+
+  if (defaults.headers || input.headers)
+    options.headers = mergeHeaders(defaults.headers, input.headers)
+
+  if (defaults.query || defaults.params || input.query || input.params) {
+    options.query = {
+      ...defaults.params,
+      ...defaults.query,
+      ...input.params,
+      ...input.query,
+    }
+    options.params = options.query
+  }
+
+  return options
+}
+
+function mergeHeaders(defaults?: HeadersInit, input?: HeadersInit) {
+  const headers = new Headers(defaults)
+
+  if (input) {
+    for (const [name, value] of new Headers(input))
+      headers.set(name, value)
+  }
+
+  return headers
 }
 
 function getFetch(url: string, opts: FetchOptions, localFetch?: typeof globalThis.$fetch) {

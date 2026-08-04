@@ -162,6 +162,51 @@ describe('$[client]', async () => {
     expectTypeOf(data).toEqualTypeOf<ReturnData | ReturnDataV2>()
   })
 
+  it('exposes "raw" returning the raw response with typed body', () => async () => {
+    expectTypeOf($pets.raw).toBeFunction()
+
+    const response = await $pets.raw('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+    })
+    expectTypeOf(response.status).toEqualTypeOf<number>()
+    expectTypeOf(response._data).toEqualTypeOf<ReturnData | undefined>()
+
+    const v2Response = await $pets.raw('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v2+json',
+    })
+    expectTypeOf(v2Response._data).toEqualTypeOf<ReturnDataV2 | undefined>()
+  })
+
+  it('exposes "create" returning an equally typed derived client', () => async () => {
+    expectTypeOf($pets.create).toBeFunction()
+
+    const authed = $pets.create({ headers: { Authorization: 'Bearer token' } })
+
+    const data = await authed('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+    })
+    expectTypeOf(data).toEqualTypeOf<ReturnData>()
+
+    const response = await authed.raw('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/vnd.petstore.v2+json',
+    })
+    expectTypeOf(response._data).toEqualTypeOf<ReturnDataV2 | undefined>()
+
+    expectTypeOf(authed.create).toBeFunction()
+
+    // Defaults that could invalidate the generated operation types are rejected.
+    // @ts-expect-error method must be selected for each operation call
+    $pets.create({ method: 'post' })
+    // @ts-expect-error response parsing would invalidate the OpenAPI response type
+    $pets.create({ parseResponse: JSON.parse })
+
+    // @ts-expect-error unknown paths are still rejected on derived clients
+    authed('/unknown')
+  })
 })
 
 describe('use[Client]', async () => {
