@@ -161,6 +161,7 @@ describe('$[client]', async () => {
     })
     expectTypeOf(data).toEqualTypeOf<ReturnData | ReturnDataV2>()
   })
+
 })
 
 describe('use[Client]', async () => {
@@ -225,30 +226,67 @@ describe('use[Client]', async () => {
   })
 
   it('has correct reponse type using "default"', () => () => {
+    // `default` must match the response type — `data` no longer includes `undefined`
+    // and is not widened to a union with the default's type (issue #39)
     const { data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+      default: () => ({
+        name: 'doggie',
+        photoUrls: [],
+      }),
+      immediate: false,
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<ReturnData>>()
+  })
+
+  it('contextually types an empty array default as the array response', () => () => {
+    const { data } = usePets('/pet/findByStatus', {
+      query: { status: 'available' },
+      default: () => [],
+      immediate: false,
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<ReturnData[]>>()
+  })
+
+  it('rejects "default" not matching the response type', () => () => {
+    // @ts-expect-error `default` must return the response type, not an arbitrary one
+    usePets('/pet/{petId}', {
       path: { petId: 1 },
       default: () => ({
         bar: 12,
       }),
       immediate: false,
     })
-
-    expectTypeOf(data).toExtend<Ref<ReturnData | { bar: number }>>()
   })
 
   it('has correct response type using "default" and "transform"', () => () => {
+    // With `transform`, `default` must match the transformed type
     const { data } = usePets('/pet/{petId}', {
       path: { petId: 1 },
+      accept: 'application/json',
       transform: input => ({
         foo: input.name,
       }),
       default: () => ({
-        bar: 12,
+        foo: 'doggie',
       }),
       immediate: false,
     })
 
-    expectTypeOf(data).toExtend<Ref<{ foo: string } | { bar: number }>>()
+    expectTypeOf(data).toEqualTypeOf<Ref<{ foo: string }>>()
+  })
+
+  it('rejects a default not matching the transform result', () => () => {
+    usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      transform: input => ({ foo: input.name }),
+      // @ts-expect-error `default` must match the transformed response type
+      default: () => ({ bar: 12 }),
+      immediate: false,
+    })
   })
 
   it('has correct response type using "pick"', () => () => {

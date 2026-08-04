@@ -5,10 +5,12 @@ import type { Ref } from 'vue'
 import type {
   AcceptMediaTypeOption,
   BodySerializerOption,
-  ExtractMediaType,
-  FetchResponseData,
-  FetchResponseError,
   FilterMethods,
+  OpenFetchData,
+  OpenFetchError,
+  OpenFetchMediaType,
+  OpenFetchMethod,
+  OpenFetchOperation,
   ParamsOption,
   RequestBodyOption,
 } from './fetch'
@@ -25,41 +27,63 @@ type ComputedOptions<T> = {
 type ComputedMethodOption<M, P> = 'get' extends keyof P ? ComputedOptions<{ method?: M }> : ComputedOptions<{ method: M }>
 
 type UseOpenFetchOptions<
-  Method,
-  LowercasedMethod,
-  Params,
+  Lazy,
+  Paths,
+  Path extends Extract<keyof Paths, string>,
+  Method extends string,
   Media,
-  ResT,
-  DataT = ResT,
-  PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
-  DefaultT = null,
-  Operation = 'get' extends LowercasedMethod ? ('get' extends keyof Params ? Params['get'] : never) : LowercasedMethod extends keyof Params ? Params[LowercasedMethod] : never,
+  DataT,
+  PickKeys extends KeysOf<DataT>,
+  Operation = OpenFetchOperation<Paths, Path, Method>,
 >
-  = ComputedMethodOption<Method, Params>
+  = ComputedMethodOption<Method, FilterMethods<Paths[Path]>>
   & ComputedOptions<ParamsOption<Operation>>
   & ComputedOptions<RequestBodyOption<Operation>>
   & ComputedOptions<AcceptMediaTypeOption<Media>>
   & ComputedOptions<BodySerializerOption<RequestBodyOption<Operation>['body']>>
-  & Omit<UseFetchOptions<ResT, DataT, PickKeys, DefaultT>, 'query' | 'body' | 'method'>
+  & Omit<UseFetchOptions<OpenFetchData<Paths, Path, Method, Media>, DataT, PickKeys>, 'query' | 'body' | 'method' | 'default'>
+  & (Lazy extends true ? { lazy?: undefined } : unknown)
 
-export type UseOpenFetchClient<Paths, Lazy> = <
-  ReqT extends Extract<keyof Paths, string>,
-  Methods extends FilterMethods<Paths[ReqT]>,
-  Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
-  LowercasedMethod extends Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never,
-  DefaultMethod extends 'get' extends LowercasedMethod ? 'get' : LowercasedMethod,
-  Media extends ExtractMediaType<Methods[DefaultMethod]>,
-  ResT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseData<Methods[DefaultMethod], Media> : never,
-  ErrorT = Methods[DefaultMethod] extends Record<string | number, any> ? FetchResponseError<Methods[DefaultMethod]> : never,
-  DataT = ResT,
-  PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
-  DefaultT = undefined,
->(
-  url: ReqT | (() => ReqT),
-  options?: Lazy extends true
-    ? Omit<UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>, 'lazy'>
-    : UseOpenFetchOptions<Method, LowercasedMethod, Methods, Media, ResT, DataT, PickKeys, DefaultT>,
-) => AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
+export interface UseOpenFetchClient<Paths, Lazy> {
+  <
+    Path extends Extract<keyof Paths, string>,
+    Method extends OpenFetchMethod<Paths, Path>,
+    Media extends OpenFetchMediaType<Paths, Path, Method>,
+    DataT = OpenFetchData<Paths, Path, Method, Media>,
+    PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
+  >(
+    url: Path | (() => Path),
+    options?: UseOpenFetchOptions<Lazy, Paths, Path, Method, Media, DataT, PickKeys> & { default?: undefined },
+  ): AsyncData<PickFrom<DataT, PickKeys> | undefined, OpenFetchError<Paths, Path, Method> | undefined>
+
+  <
+    Path extends Extract<keyof Paths, string>,
+    Method extends OpenFetchMethod<Paths, Path>,
+    Media extends OpenFetchMediaType<Paths, Path, Method>,
+    DataT = OpenFetchData<Paths, Path, Method, Media>,
+    PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
+  >(
+    url: Path | (() => Path),
+    options: UseOpenFetchOptions<Lazy, Paths, Path, Method, Media, DataT, PickKeys> & {
+      default: () => NoInfer<DataT> | Ref<NoInfer<DataT>>
+      transform?: undefined
+    },
+  ): AsyncData<PickFrom<DataT, PickKeys> | DataT, OpenFetchError<Paths, Path, Method> | undefined>
+
+  <
+    Path extends Extract<keyof Paths, string>,
+    Method extends OpenFetchMethod<Paths, Path>,
+    Media extends OpenFetchMediaType<Paths, Path, Method>,
+    DataT,
+    PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
+  >(
+    url: Path | (() => Path),
+    options: UseOpenFetchOptions<Lazy, Paths, Path, Method, Media, DataT, PickKeys> & {
+      default: () => NoInfer<DataT> | Ref<NoInfer<DataT>>
+      transform: (input: OpenFetchData<Paths, Path, Method, Media>) => DataT | Promise<DataT>
+    },
+  ): AsyncData<PickFrom<DataT, PickKeys> | DataT, OpenFetchError<Paths, Path, Method> | undefined>
+}
 
 export function createUseOpenFetch<
   Paths,
@@ -73,7 +97,7 @@ export function createUseOpenFetch<
   Paths,
   Lazy extends boolean,
 >(client: $Fetch | OpenFetchClientName, lazy = false): UseOpenFetchClient<Paths, Lazy> {
-  return (url: string | (() => string), options: any = {}) => {
+  const composable = (url: string | (() => string), options: any = {}) => {
     // https://nuxt.com/docs/guide/recipes/custom-usefetch#custom-usefetchuseasyncdata
     const nuxtApp = useNuxtApp()
     const fetch = (typeof client === 'string' ? nuxtApp[`$${client}`] : client) as typeof $fetch
@@ -84,6 +108,8 @@ export function createUseOpenFetch<
 
     return useFetch(url, lazy ? { ...opts, lazy } : { ...opts })
   }
+
+  return composable as UseOpenFetchClient<Paths, Lazy>
 }
 
 function createAutoKey(client: string, url: string | (() => string), options: any) {
