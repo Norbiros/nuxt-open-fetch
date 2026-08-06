@@ -17,6 +17,9 @@ importers:
       defu:
         specifier: ^6.1.5
         version: 6.1.7
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
       ohash:
         specifier: ^2.0.11
         version: 2.0.11
@@ -63,9 +66,6 @@ importers:
       nuxt:
         specifier: ^4.5.1
         version: 4.5.1(@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.29.0))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.0))(@modelcontextprotocol/sdk@1.30.0(zod@4.4.3))(@types/node@24.10.1)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(esbuild@0.28.1)(eslint@9.39.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(optionator@0.9.4)(oxc-parser@0.140.0)(rollup-plugin-visualizer@7.0.1(rolldown@1.2.0)(rollup@4.53.3))(rollup@4.53.3)(srvx@0.12.4)(terser@5.44.1)(typescript@5.9.3)(vite@8.1.5(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.2.5(typescript@5.9.3))(yaml@2.9.0)
-      ofetch:
-        specifier: ^1.5.1
-        version: 1.5.1
 
   docs:
     dependencies:

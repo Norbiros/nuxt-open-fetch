@@ -10,6 +10,7 @@ import type {
   ResponseObjectMap,
   SuccessResponse,
 } from 'openapi-typescript-helpers'
+import { $fetch as ofetch } from 'ofetch'
 
 interface OpenFetchHooks {
   callHook: (name: any, ...args: any[]) => any
@@ -186,7 +187,7 @@ function getFetch(url: string, opts: FetchOptions, localFetch?: typeof globalThi
       return localFetch
   }
 
-  return globalThis.$fetch
+  return globalThis.$fetch || ofetch
 }
 
 export function fillPath(path: string, params: Record<string, string> = {}) {
