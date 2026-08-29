@@ -61,6 +61,7 @@
   "dependencies": {
     "@nuxt/kit": "^4.5.1",
     "defu": "^6.1.5",
+    "ofetch": "^1.5.1",
     "ohash": "^2.0.11",
     "openapi-typescript": "^7.13.0",
     "openapi-typescript-helpers": "^0.1.0",
@@ -77,8 +78,7 @@
     "eslint": "^9.39.1",
     "happy-dom": "^20.10.6",
     "listhen": "^1.9.0",
-    "nuxt": "^4.5.1",
-    "ofetch": "^1.5.1"
+    "nuxt": "^4.5.1"
   },
   "resolutions": {
     "@norbiros/nuxt-open-fetch": "workspace:*"
