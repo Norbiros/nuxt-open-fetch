@@ -203,6 +203,14 @@ describe('$[client]', async () => {
     $pets.create({ method: 'post' })
     // @ts-expect-error response parsing would invalidate the OpenAPI response type
     $pets.create({ parseResponse: JSON.parse })
+    $pets.create({ ignoreResponseError: true })
+
+    // Creating a client without additional defaults matches `$fetch.create`.
+    $pets.create()
+
+    $pets.raw('/pet/{petId}', { path: { petId: 1 }, parseResponse: JSON.parse })
+    $pets('/pet/{petId}', { path: { petId: 1 }, ignoreResponseError: true })
+    $pets.raw('/pet/{petId}', { path: { petId: 1 }, responseType: 'blob' })
 
     // @ts-expect-error unknown paths are still rejected on derived clients
     authed('/unknown')
@@ -267,10 +275,21 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toExtend<Ref<{ foo: string } | undefined>>()
+    expectTypeOf(data).toEqualTypeOf<Ref<{ foo: string } | undefined>>()
   })
 
-  it('has correct reponse type using "default"', () => () => {
+  it('supports using "pick" on transformed data', () => () => {
+    const { data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+      transform: pet => ({ foo: pet.name, bar: 1 }),
+      pick: ['foo'],
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<{ foo: string } | undefined>>()
+  })
+
+  it('has correct response type using "default"', () => () => {
     // `default` must match the response type — `data` no longer includes `undefined`
     // and is not widened to a union with the default's type (issue #39)
     const { data } = usePets('/pet/{petId}', {
@@ -334,6 +353,28 @@ describe('use[Client]', async () => {
     })
   })
 
+  it('supports an optional default from reusable options', () => () => {
+    const reusable: { default?: () => ReturnData } = {}
+    const { data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+      ...reusable,
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<ReturnData | undefined>>()
+  })
+
+  it('preserves the default type when pick narrows fetched data', () => () => {
+    const { data } = usePets('/pet/{petId}', {
+      path: { petId: 1 },
+      accept: 'application/json',
+      pick: ['name'],
+      default: () => ({ name: 'doggie', photoUrls: [] }),
+    })
+
+    expectTypeOf(data).toEqualTypeOf<Ref<Pick<ReturnData, 'name'> | ReturnData>>()
+  })
+
   it('has correct response type using "pick"', () => () => {
     const { data } = usePets('/pet/{petId}', {
       path: { petId: 1 },
@@ -341,7 +382,7 @@ describe('use[Client]', async () => {
       immediate: false,
     })
 
-    expectTypeOf(data).toExtend<Ref<{ name: string } | undefined>>()
+    expectTypeOf(data).toEqualTypeOf<Ref<{ name: string } | undefined>>()
   })
 
   it('returns correct type based on accept header', () => () => {

@@ -111,7 +111,7 @@ export interface OpenFetchClient<Paths> {
     url: Path,
     options?: OpenFetchRequestOptions<Paths, Path, Method, Media>,
   ) => Promise<FetchResponse<OpenFetchData<Paths, Path, Method, Media>>>
-  create: (defaults: OpenFetchCreateOptions) => OpenFetchClient<Paths>
+  create: (defaults?: OpenFetchCreateOptions) => OpenFetchClient<Paths>
 }
 
 // More flexible way to rewrite the request path,
