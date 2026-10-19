@@ -237,7 +237,7 @@ export {}
 import { createUseOpenFetch } from '#open-fetch-use-fetch'
 import type { OpenFetchOptions } from '#imports'
 ${schemas.map(({ name }) => `
-import type { paths as ${pascalCase(name)}Paths, operations as ${pascalCase(name)}Operations } from '#open-fetch-schemas/${kebabCase(name)}'
+import type { paths as ${pascalCase(name)}Paths, operations as ${pascalCase(name)}Operations, components as ${pascalCase(name)}Components } from '#open-fetch-schemas/${kebabCase(name)}'
 `.trimStart()).join('').trimEnd()}
 
 ${schemas.length ? `export type OpenFetchClientName = ${schemas.map(({ name }) => `'${name}'`).join(' | ')}` : ''}
@@ -275,6 +275,8 @@ export type ${pascalCase(name)}RequestBody<T extends keyof ${pascalCase(name)}Op
 export type ${pascalCase(name)}RequestQuery<T extends keyof ${pascalCase(name)}Operations> = ${pascalCase(name)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
 
 export type ${pascalCase(name)}RequestPath<T extends keyof ${pascalCase(name)}Operations> = ${pascalCase(name)}Operations[T]['parameters'] extends { path?: infer U } ? U : never
+
+export type ${pascalCase(name)}Schemas = ${pascalCase(name)}Components['schemas']
 `.trimStart()).join('\n')}`.trimStart()
       },
       write: true,
