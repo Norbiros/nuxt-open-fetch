@@ -156,7 +156,8 @@ export function createUseOpenFetch<
   Paths,
   Lazy extends boolean,
 >(client: $Fetch | OpenFetchClientName, lazy = false): UseOpenFetchClient<Paths, Lazy> {
-  const composable = (url: string | (() => string), options: any = {}) => {
+  // OpenAPI paths always start with `/`, which also satisfies Nuxt's `strictRouteTypes`.
+  const composable = (url: `/${string}` | (() => `/${string}`), options: any = {}) => {
     // https://nuxt.com/docs/guide/recipes/custom-usefetch#custom-usefetchuseasyncdata
     const nuxtApp = useNuxtApp()
     const fetch = (typeof client === 'string' ? nuxtApp[`$${client}`] : client) as typeof $fetch

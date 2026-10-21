@@ -14,4 +14,15 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-03-21',
+
+  // `nuxi prepare --envName typed-fetch` checks the module against Nuxt's route-typed `$fetch`
+  $env: {
+    'typed-fetch': {
+      buildDir: '.nuxt-typed-fetch',
+      experimental: {
+        routeTypedFetch: true,
+        strictRouteTypes: true,
+      },
+    },
+  },
 })

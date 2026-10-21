@@ -13,7 +13,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^4.0.3",
     "@vue/test-utils": "^2.4.6",
-    "nuxt": "^4.4.8",
+    "nuxt": "^4.6.2",
     "vitest": "^4.1.10"
   }
 }

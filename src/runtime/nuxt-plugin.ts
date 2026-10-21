@@ -1,3 +1,4 @@
+import type { ObjectPlugin, Plugin } from 'nuxt/app'
 import { defineNuxtPlugin, useRequestFetch, useRuntimeConfig } from '#imports'
 import { installOpenFetchClients } from './provide'
 
@@ -9,4 +10,4 @@ export default defineNuxtPlugin({
 
     installOpenFetchClients(nuxtApp, clients as any, $fetch as any)
   },
-})
+}) satisfies Plugin & ObjectPlugin

@@ -18,6 +18,7 @@ dist
 
 # Nuxt
 .nuxt
+.nuxt-typed-fetch
 .output
 .data
 .vercel_build_output

@@ -56,10 +56,13 @@
     "lint:fix": "eslint . --fix",
     "test": "pnpm dev:build && cd playground/ && vitest run",
     "test:watch": "cd playground/ && vitest watch --project=!build",
-    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit && nuxi prepare --envName typed-fetch && vue-tsc --noEmit -p tsconfig.typed-fetch.json"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.5.1",
+    "@nuxt/kit": "^4.6.2",
     "defu": "^6.1.5",
     "ohash": "^2.0.11",
     "openapi-typescript": "^7.13.0",
@@ -71,13 +74,13 @@
     "@nuxt/devtools": "^3.1.0",
     "@nuxt/eslint-config": "^1.10.0",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.5.1",
+    "@nuxt/schema": "^4.6.2",
     "@types/node": "^24.10.1",
     "changelogen": "^0.6.2",
     "eslint": "^9.39.1",
     "happy-dom": "^20.10.6",
     "listhen": "^1.9.0",
-    "nuxt": "^4.5.1",
+    "nuxt": "^4.6.2",
     "ofetch": "^1.5.1"
   },
   "resolutions": {
